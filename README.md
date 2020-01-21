@@ -7,9 +7,29 @@ Det er basert på Java 11, Maven og Tomcat 8 (embedded).
 
 # Komme i gang
 
-Klon prosjektet, åpne det i et Java IDE. Start Tomcat-serveren ved å kjøre klassen Application.
+## Forutsetninger
 
-I nettleser åpne http://localhost:8080/dinpensjon?_loggedOnName=<saksbehandlernavn>&_brukerId=<fnr>
+Java 11 og Maven 3.x må være installert.
+
+## Bruk
+
+Git-klon prosjektet, bruk deretter følgende kommandoer for å starte Tomcat-serveren:
+```
+$ mvn package
+$ sh target/bin/webapp
+```
+
+Alternativt, åpne prosjektet i et Java-IDE og start serveren ved å kjøre klassen `Application`.
+
+Test at applikasjonen kjører ved å åpne følgende adresse i en nettleser:
+```
+http://localhost:8080/ping.html
+```
+
+Bruk applikasjonen som saksbehandler ved å åpne følgende adresse i en nettleser:
+```
+http://localhost:8080/dinpensjon?_loggedOnName=<saksbehandlernavn>&_brukerId=<fnr>
+```
 
 # Henvendelser
 
