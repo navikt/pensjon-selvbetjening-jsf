@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+         version="3.0">
+
+    <description>JSFlive - JSF 2.2 Composite component tags</description>
+
+    <servlet>
+        <servlet-name>Faces Servlet</servlet-name>
+        <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Faces Servlet</servlet-name>
+        <url-pattern>*.jsf</url-pattern>
+    </servlet-mapping>
+
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+    </welcome-file-list>
+
+    <context-param>
+        <param-name>javax.faces.PROJECT_STAGE</param-name>
+        <param-value>Development</param-value>
+    </context-param>
+    <context-param>
+        <param-name>javax.faces.WEBAPP_RESOURCES_DIRECTORY</param-name>
+        <param-value>/resources</param-value>
+    </context-param>
+    <context-param>
+        <param-name>javax.faces.SERIALIZE_SERVER_STATE</param-name>
+        <param-value>false</param-value>
+    </context-param>
+    <context-param>
+        <param-name>javax.faces.STATE_SAVING_METHOD</param-name>
+        <param-value>server</param-value>
+    </context-param>
+    <context-param>
+        <param-name>javax.faces.FACELETS_LIBRARIES</param-name>
+        <param-value>
+            /WEB-INF/facelets/taglibs/modig.taglib.xml;
+            /WEB-INF/facelets/taglibs/stelvio.components.xml;
+            /WEB-INF/facelets/taglibs/tomahawk.taglib.xml;
+            /WEB-INF/facelets/taglibs/pselv.taglib.xml;
+            /WEB-INF/facelets/taglibs/pselv-context.taglib.xml;
+            /WEB-INF/facelets/taglibs/pselv-security.taglib.xml
+        </param-value>
+    </context-param>
+
+    <filter>
+        <description>Creates and validates the binding between the authenticated user and the HTTP session</description>
+        <display-name>HttpSessionSecurityIntegrationFilter</display-name>
+        <filter-name>HttpSessionSecurityIntegrationFilter</filter-name>
+        <filter-class>no.stelvio.presentation.security.session.HttpSessionSecurityIntegrationFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>HttpSessionSecurityIntegrationFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <filter>
+        <filter-name>encodingFilter</filter-name>
+        <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+        <init-param>
+            <param-name>encoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+        <init-param>
+            <param-name>forceEncoding</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>encodingFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <filter>
+        <description>Using Spring to load configuration and delegate to the actual filter class</description>
+        <display-name>RequestContextFilter</display-name>
+        <filter-name>RequestContextFilter</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+        <init-param>
+            <param-name>targetBeanName</param-name>
+            <param-value>prs.pselv.requestContextFilter</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>RequestContextFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <filter>
+        <display-name>SecurityContextFilter</display-name>
+        <filter-name>SecurityContextFilter</filter-name>
+        <filter-class>no.nav.presentation.pensjon.pselv.fullmakter.WSPselvCustomSecurityContextFilter</filter-class>
+        <init-param>
+            <param-name>no.stelvio.presentation.security.ALLOW_URL_MANIPULATION</param-name>
+            <param-value>true</param-value>
+        </init-param>
+        <init-param>
+            <param-name>no.stelvio.presentation.security.START_PAGE</param-name>
+            <param-value>/publisering/dinpensjon.jsf</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>SecurityContextFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <filter>
+        <description>To set IKKE_INNLOGGET if not logged in (must be declared after SecurityContextFilter)</description>
+        <display-name>PSELVSecurityContextFilter</display-name>
+        <filter-name>PSELVSecurityContextFilter</filter-name>
+        <filter-class>no.nav.presentation.pensjon.pselv.common.session.PSELVSecurityContextFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>PSELVSecurityContextFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <filter>
+        <description>
+            A filter proxy which decides which login filter to use depending on the environment (Selvbetjeningssone or Fagsystemsone);
+            currently these are InnloggingFilter and InnloggingPSAKFilter
+        </description>
+        <filter-name>InnloggingFilter Proxy</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+        <init-param>
+            <param-name>targetBeanName</param-name>
+            <param-value>prs.pselv.innloggingFilterFactory</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>InnloggingFilter Proxy</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <filter>
+        <filter-name>decoratorFilter</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>decoratorFilter</filter-name>
+        <url-pattern>*</url-pattern>
+    </filter-mapping>
+
+    <filter>
+        <filter-name>PselvContextFilter</filter-name>
+        <filter-class>no.nav.presentation.pensjon.pselv.common.PselvContextFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>PselvContextFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <listener>
+        <listener-class>no.nav.presentation.pensjon.pselv.common.PSELVStartupListener</listener-class>
+    </listener>
+</web-app>

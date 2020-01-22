@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:t="http://myfaces.apache.org/tomahawk"
+      xmlns:pselvcore="http://www.stelvio.no/jsf/pselv/security"
+      xmlns:pselvcontext="http://nav.pselv.no/context"
+      xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+<!--@elvariable id="leftMenuPensjon" type="no.nav.presentation.pensjon.pselv.common.menu.MenuItem"-->
+<!--@elvariable id="leftMenuUT" type="no.nav.presentation.pensjon.pselv.common.menu.MenuItem"-->
+
+<ui:composition>
+    <nav class="pselv-menu">
+        <h1 class="visuallyhidden">Venstremeny</h1>
+        <ul class="level-one">
+            <ui:repeat value="#{pselvcontext:isPensjonContext() ? applicationScope.leftMenuPensjon.children : applicationScope.leftMenuUT.children}"
+                       var="child" varStatus="childStatus">
+                <h:panelGroup rendered="#{child.renderForUser}">
+                    <t:htmlTag value="li"
+                               styleClass="level-one#{not empty child.children and child.open ? ' active has-children' : not empty child.children ? ' has-children' : child.active ? ' active' : ''}"
+                               rendered="#{child.label ne 'eosopplysninger' or (child.label eq 'eosopplysninger' and PENSJON_COMMON_SESSIONMAP.EESSI_PENSJON_SELVBETJENING)}">
+                        <h:outputLink value="#{contextBean.contextPath}/#{child.action}"
+                                      rendered="#{child.label ne 'eosopplysninger'}">
+                            <h:outputText value="#{breadCrumbSource[child.label]}" title="#{breadCrumbSource[child.label]}"/>
+                            <h:outputText value=" (#{PENSJON_COMMON_SESSIONMAP.ANTALL_ULESTE} uleste)"
+                                          rendered="#{child.label eq 'publisering/dininnboks'}"/>
+                            <h:outputText rendered="#{childStatus.first and pselvcore:isWorkingOnBehalfOf()}"
+                                          value=" (#{PENSJON_COMMON_SESSIONMAP.ON_BEHALF_OF_FIRSTNAME})"/>
+                        </h:outputLink>
+                        <c:set var="eessiFraFss" value="#{pselvConfigSource['cfg.pselv.eessi.utlandsmodul.fss.url']}/?aktoerId=#{PENSJON_COMMON_SESSIONMAP.AKTOER_ID}"/>
+                        <c:set var="eessiFraSbs" value="#{pselvConfigSource['cfg.pselv.eessi.utlandsmodul.sbs.url']}"/>
+                        <h:outputLink value="#{PENSJON_COMMON_SESSIONMAP.AKTOER_ID != null ? eessiFraFss : eessiFraSbs}" target="_blank"
+                                      rendered="#{child.label eq 'eosopplysninger' and PENSJON_COMMON_SESSIONMAP.EESSI_PENSJON_SELVBETJENING}">
+                            <h:outputText value="#{breadCrumbSource[child.label]}" title="#{breadCrumbSource[child.label]}"/>
+                        </h:outputLink>
+                        <h:panelGroup rendered="#{not empty child.children and child.open}">
+                            <ui:repeat value="#{child.children}" var="grandChild">
+                                <h:panelGroup rendered="#{grandChild.renderForUser}">
+                                    <t:htmlTag value="li" styleClass="level-two#{grandChild.active ? ' active' : ''}">
+                                        <h:outputLink value="${contextBean.contextPath}/${grandChild.action}">
+                                            <h:outputText value="#{breadCrumbSource[grandChild.label]}"
+                                                          title="#{breadCrumbSource[grandChild.label]}"/>
+                                        </h:outputLink>
+                                    </t:htmlTag>
+                                </h:panelGroup>
+                            </ui:repeat>
+                        </h:panelGroup>
+                    </t:htmlTag>
+                </h:panelGroup>
+            </ui:repeat>
+        </ul>
+    </nav>
+
+    <nav class="pselv-menu mobile">
+        <h1 class="visuallyhidden">Venstremeny mobil</h1>
+        <label for="pselv-menu-mobile-select" class="menu-title">Menyvalg</label>
+        <select id="pselv-menu-mobile-select">
+            <ui:repeat value="#{pselvcontext:isPensjonContext() ? applicationScope.leftMenuPensjon.children : applicationScope.leftMenuUT.children}"
+                       var="child" varStatus="childStatus">
+                <h:panelGroup
+                        rendered="#{(child.renderForUser and child.label ne 'eosopplysninger') || (child.renderForUser and child.label eq 'eosopplysninger' and PENSJON_COMMON_SESSIONMAP.EESSI_PENSJON_SELVBETJENING)}">
+                    <option value="#{child.label ne 'eosopplysninger'? child.action : PENSJON_COMMON_SESSIONMAP.AKTOER_ID != null? eessiFraFss : eessiFraSbs}">
+                        <h:outputText value="#{breadCrumbSource[child.label]}"/>
+                        <h:outputText value=" (#{PENSJON_COMMON_SESSIONMAP.ANTALL_ULESTE} uleste)"
+                                      rendered="#{child.label eq 'publisering/dininnboks'}"/>
+                        <h:outputText rendered="#{childStatus.first and pselvcore:isWorkingOnBehalfOf()}"
+                                      value=" (#{PENSJON_COMMON_SESSIONMAP.ON_BEHALF_OF_FIRSTNAME})"/>
+                    </option>
+                    <h:panelGroup rendered="#{not empty child.children}">
+                        <ui:repeat value="#{child.children}" var="grandChild">
+                            <h:panelGroup rendered="#{grandChild.renderForUser}">
+                                <option value="#{grandChild.action}">
+                                    -- <h:outputText value="#{breadCrumbSource[grandChild.label]}"/>
+                                </option>
+                            </h:panelGroup>
+                        </ui:repeat>
+                    </h:panelGroup>
+                </h:panelGroup>
+            </ui:repeat>
+        </select>
+    </nav>
+
+    <script>
+        var selectMenu = document.querySelector('#pselv-menu-mobile-select');
+        selectMenu.addEventListener("change", function (elem) {
+            let input = selectMenu.options[selectMenu.selectedIndex].value;
+            if (input.substring(0, 4) === "http") {
+                window.open(input, '_blank');
+            } else {
+                window.location.href = '#{contextBean.contextPath}/' + selectMenu.options[selectMenu.selectedIndex].value;
+            }
+        });
+    </script>
+
+</ui:composition>
+</html>

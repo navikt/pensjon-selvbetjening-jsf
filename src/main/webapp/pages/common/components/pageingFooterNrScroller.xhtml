@@ -1,0 +1,99 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core">
+
+
+<ui:composition>
+    <!-- To make this pageing mechanism work there are a few things to do.
+
+1. The <nav:pageingFooterNrScroller/> must be part of your <h:dataTable/>.
+2. You have to use the PageSortableList class in your form as holder of the list data.
+3. Your datatable id has to be result, eg:
+    <h:dataTable id="resultat" ....
+
+    the reason for this is that Ajax needs to know witch table to update.
+
+3. The middleText attribute has to be set to have text inn the page counter, eg:
+    middleText="of".
+
+ -->
+
+    <f:facet name="footer">
+        <h:panelGroup>
+
+            <h:panelGroup rendered="#{showEmptyMessage and (list.numberOfItems != 0)}" layout="block">
+                <h:outputText value="#{emptyMessage}"/>
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{list.numberOfItems == 0}" layout="block">
+                <h:outputText value="#{emptyMessage}"/>
+            </h:panelGroup>
+
+            <h:panelGroup layout="block">
+
+                <h:outputFormat value="{0} #{middleText} {1}"
+                                rendered="#{list.numberOfPages > 1}">
+                    <f:param value="#{list.pageIndex}"/>
+                    <f:param value="#{list.numberOfPages}"/>
+                </h:outputFormat>
+
+                <h:outputText rendered="#{list.numberOfItems != 0}" value="&#160;"/>
+
+                <h:commandLink id="first" rendered="#{list.pageIndex gt 1}"
+                               title="#{altFirst}">
+                    <h:graphicImage url="/images/forst.gif" alt="#{altFirst}"/>
+                    <f:ajax render="#{tableName}" event="click"
+                            listener="#{list.pageing}"/>
+                </h:commandLink>
+
+                <h:graphicImage url="/images/forst_gra.gif"
+                                rendered="#{list.pageIndex &lt;= 1 and list.numberOfPages > 1}"
+                                alt="#{altFirst}" title="#{altFirst}"/>
+
+                <h:outputText rendered="#{list.numberOfItems != 0}" value="&#160;"/>
+
+                <h:commandLink id="previous" rendered="#{list.pageIndex > 1}"
+                               title="#{altPrevious}">
+                    <h:graphicImage url="/images/forrige.gif" alt="#{altPrevious}"/>
+                    <f:ajax render="#{tableName}" event="click"
+                            listener="#{list.pageing}"/>
+                </h:commandLink>
+                <h:graphicImage url="/images/forrige_gra.gif"
+                                rendered="#{list.pageIndex &lt;= 1 and list.numberOfPages > 1}"
+                                alt="#{altPrevious}" title="#{altPrevious}"/>
+
+                <h:outputText rendered="#{list.numberOfItems != 0}" value="&#160;"/>
+
+                <h:commandLink id="next"
+                               rendered="#{list.pageIndex != list.numberOfPages and list.numberOfPages > 1}"
+                               title="#{altNext}">
+                    <h:graphicImage url="/images/neste.gif" alt="#{altNext}"/>
+                    <f:ajax render="#{tableName}" event="click"
+                            listener="#{list.pageing}"/>
+                </h:commandLink>
+                <h:graphicImage url="/images/neste_gra.gif"
+                                rendered="#{list.pageIndex == list.numberOfPages and list.numberOfPages > 1}"
+                                alt="#{altNext}" title="#{altNext}"/>
+
+                <h:outputText rendered="#{list.numberOfItems != 0}" value="&#160;"/>
+
+                <h:commandLink id="last"
+                               rendered="#{list.pageIndex != list.numberOfPages and list.numberOfPages > 1}"
+                               title="#{altLast}">
+                    <h:graphicImage url="/images/sist.gif" alt="#{altLast}"/>
+                    <f:ajax render="#{tableName}" event="click"
+                            listener="#{list.pageing}"/>
+                </h:commandLink>
+                <h:graphicImage url="/images/sist_gra.gif"
+                                rendered="#{list.pageIndex == list.numberOfPages and list.numberOfPages > 1}"
+                                alt="#{altLast}" title="#{altLast}"/>
+
+            </h:panelGroup>
+        </h:panelGroup>
+    </f:facet>
+</ui:composition>
+
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:m="http://nav.pselv.no/modig"
+>
+<ui:composition>
+
+    <h:form id="rightColumn22222">
+        <div class="informasjonsblokk"><!-- Start -->
+            <h2>
+                <h:outputText value="#{messageSource['pselv.fes001.statisk_tekst.overskriftinformasjonnavharomdeg']}"/>
+            </h2>
+
+            <!-- Vis lopende ytelser -->
+            <h:panelGroup rendered="#{rightColumnFormData.showBlokkLopendeYtelser}">
+                <p>
+                    <h:outputText value="#{messageSource['pselv.pus002.statisk_tekst.mottarfranav']} "/>
+                    <ui:repeat value="#{rightColumnFormData.lopendeYtelser}" var="lopendeYtelse" varStatus="loop">
+                        <h:outputText value="#{lopendeYtelse}#{not loop.last ? ', ' : ''}"/>
+                    </ui:repeat>
+                </p>
+            </h:panelGroup>
+            <!-- Vis forrige utbetaling -->
+            <h:panelGroup rendered="#{rightColumnFormData.showElementLatestUtbetaling}">
+                <p>
+                    <h:outputText value="#{messageSource['pselv.standardtekst.statisk_tekst.forrige']}"/>
+                    <h:outputText value=" #{messageSource['pselv.pus002.statisk_tekst.utbetalingvar']} "/>
+                    <m:outputText value="#{rightColumnFormData.latestPensjonsutbetalingDate}" type="date"/>
+                    &#160; &#160;
+                    <h:outputText value="#{rightColumnFormData.latestPensjonsutbetalingValue}">
+                        <f:convertNumber pattern="###,###" locale="no"/>
+                    </h:outputText>
+                    &#160;
+                    <h:outputText value="#{messageSource['pselv.standardtekst.statisk_tekst.kr']}"/>
+                </p>
+            </h:panelGroup>
+            <!-- Vis neste utbetaling -->
+            <h:panelGroup rendered="#{rightColumnFormData.showElementNextUtbetaling}">
+                <p>
+                    <h:outputText value="#{messageSource['pselv.standardtekst.statisk_tekst.neste']}"/>
+                    <h:outputText value=" #{messageSource['pselv.pus002.statisk_tekst.utbetalinger']} "/>
+                    <m:outputText value="#{rightColumnFormData.nextPensjonsutbetalingDate}" type="date"/>
+                    &#160;
+                    <h:commandLink id="mineUtbetalingerLenke"
+                                   title="#{messageSource['pselv.pus002.tooltip.vismineutbetalinger_title']}"
+                                   action="goToDineUtbetalinger"
+                                   value="#{messageSource['pselv.fes001.statisk_tekst.dineutbetalinger']}"/>
+
+                </p>
+            </h:panelGroup>
+            <!-- Vis melding dersom man ikke kan Vise utbetalingsdatoer -->
+            <h:panelGroup rendered="#{rightColumnFormData.showAvvikPensjonsutbetaling}">
+                <p>
+                    <h:outputText value="#{messageSource['pselv.pus002.avviksmelding.utbetalingsdatoerkanikkeVises']}"/>
+                </p>
+            </h:panelGroup>
+            <!-- Din pensjonsbeholdning -->
+            <h:panelGroup layout="block" rendered="#{rightColumnFormData.showElementPensjonsbeholdning and rightColumnFormData.showPensjonsbeholdningInfo}" styleClass="hjelpetekst-container clearfix">
+                <p class="pensjonsbeholdning pull-left">
+                    <h:outputFormat value="#{messageSource['pselv.fes001.statisk_tekst.pensjonsbeholdningtekst']}">
+                        <f:param value="#{rightColumnFormData.pensjonsbeholdningDate}"/>
+                    </h:outputFormat>
+                    &#160;
+                    <h:outputText value="#{rightColumnFormData.pensjonsbeholdningValue}">
+                        <f:convertNumber pattern="###,###" locale="no"/>
+                    </h:outputText>
+                    &#160;
+                    <h:outputText value="#{messageSource['pselv.standardtekst.statisk_tekst.kr']}"/>
+                    &#160;
+                </p>
+                <span class="pull-left">
+                        <m:hjelpetekst title="#{messageSource['pselv.standardtekst.tooltip.hjelpeikon_title']}"
+                                       message="#{messageSource['pselv.pus003.hjelpetekst.pensjonsbeholdning']}" />
+                    </span>
+            </h:panelGroup>
+            <!-- Registrert sivilstand -->
+            <p>
+                <h:outputFormat value="#{messageSource['pselv.fes001.statisk_tekst.registrertsivilstand']}">
+                    <f:param value="#{rightColumnFormData.sivilStatus}"/>
+                </h:outputFormat>
+            </p>
+            <!-- Registrert inntekt -->
+            <h:panelGroup rendered="#{rightColumnFormData.showElementInntekt}">
+                <p>
+                    <h:outputFormat
+                            value="#{messageSource['pselv.fes001.statisk_tekst.sistregistrerteinntekt']}">
+                        <f:param
+                                value="#{rightColumnFormData.latestRegisteredInntektYear}"/>
+                    </h:outputFormat>
+                    &#160;
+                    <h:outputText rendered="#{rightColumnFormData.showElementInntekt}" value="#{rightColumnFormData.latestRegisteredInntekt}">
+                        <f:convertNumber pattern="###,###" locale="no"/>
+                    </h:outputText>
+                    &#160;
+                    <h:outputText value="#{messageSource['pselv.standardtekst.statisk_tekst.kr']}"/>
+                    &#160;
+                    <h:commandLink id="mineOpptjeninger"
+                                   title="#{messageSource['pselv.fes001.tooltip.seflerear_title']}"
+                                   action="goToOpptjening"
+                                   value="#{messageSource['pselv.fes001.statisk_tekst.seflerear']}"/>
+                </p>
+            </h:panelGroup>
+            <!-- Vis 'ingen utbetaling'-tekst dersom det ike er mulig -->
+            <h:panelGroup rendered="#{!rightColumnFormData.showBlokkPensjonsutbetalinger and rightColumnFormData.notBegrensetFullmakt}">
+                <p>
+                    <h:outputText value="#{messageSource['pselv.fes001.statisk_tekst.ingenutbetaling']}"/>
+                </p>
+            </h:panelGroup>
+            <!-- Vis 'ingen fremtidige utbetalinger'-tekst dersom det ikke er noen -->
+            <h:panelGroup rendered="#{rightColumnFormData.showElementNoFuturePayments}">
+                <p>
+                    <h:outputText value="#{messageSource['pselv.fes001.statisk_tekst.ingenfremtidigepensjonsutbetalinger']}"/>
+                </p>
+            </h:panelGroup>
+        </div>
+        <!-- Slutt -->
+    </h:form>
+</ui:composition>
+
+</html>

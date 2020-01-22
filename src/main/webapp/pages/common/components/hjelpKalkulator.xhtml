@@ -1,0 +1,17 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:nav="http://www.nav.no/jsf">
+
+<ui:composition>
+    <ui:remove>
+        <div id="helpDisplay">
+            <nav:helpInPageDisplay idOfEnclosingTag="helpDisplay"
+                                   defaultText="#{messageSource['pselv.fes001.statisk_tekst.standardhjelp']}"
+                                   closeButtonId="NAVhelpCloseButton"/>
+            <img id="NAVhelpCloseButton" src="${contextBean.contextPath}/images/lukkhjelp.gif" title="Lukk hjelpeboksen" alt=""/>
+        </div>
+    </ui:remove>
+</ui:composition>
+</html>
