@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
+<!--      xmlns:ui="http://java.sun.com/jsf/facelets"-->
+<!--      xmlns:pselvcore="http://www.stelvio.no/jsf/pselv/security">-->
+<ui:composition>
+    <h:panelGroup>
+        <div class="innloggingsinformasjon">
+            <header>
+                <ui:remove><!-- VEILEDER UTEN FULLMAKT --></ui:remove>
+
+                <h:panelGroup>
+                    <h2>
+                        <h:outputFormat value="{0} {1}, {2} {3}">
+                            <f:param value="#{messageSource['pselv.fes001.ledetekst.paaloggetveileder']}"/>
+                            <f:param value="#{PENSJON_COMMON_SESSIONMAP.COMMON_LOGGED_ON_NAME}"/>
+                            <f:param value="#{messageSource['pselv.fes001.ledetekst.paavegneav']}"/>
+                            <f:param value="#{PENSJON_COMMON_SESSIONMAP.ON_BEHALF_OF_NAME}"/>
+                        </h:outputFormat>
+                    </h2>
+                    <button id="brukerLukkButton"
+                            class="btn-auth btn-logout link-btn"
+                            onclick="window.close();"
+                            title="#{messageSource['pselv.standardtekst.tooltip.lukk_title']}">
+                        <h:outputText value="#{messageSource['pselv.standardtekst.knappetekst.lukk']}"/>
+                    </button>
+                </h:panelGroup>
+
+                <ui:remove><!-- BRUKER MED FULLMAKT --></ui:remove>
+            </header>
+        </div>
+    </h:panelGroup>
+
+    <div class="hidden">
+        <h:outputText styleClass="logged-in-user-name" value=" #{PENSJON_COMMON_SESSIONMAP.COMMON_LOGGED_ON_NAME}" />
+        <h:form>
+            <h:commandLink styleClass="logged-in-user-logout-button" action="#{logoutService.logout}"
+                           value="#{messageSource['pselv.fes001.knappetekst.loggut']}" />
+        </h:form>
+    </div>
+</ui:composition>
+</html>

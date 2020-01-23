@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:composite="http://java.sun.com/jsf/composite">
+<composite:interface>
+</composite:interface>
+<composite:implementation>
+    <div id="forklaringObligatoriskeFelt">
+        <h:outputText id="asterisk"
+                      value="#{messageSource['pselv.standardtekst.statisk_tekst.obligatorisk_stjerne']}"
+                      styleClass="input-with-label asterisk"/>
+        <h:outputText id="asteriskDescription"
+                      value="#{messageSource['pselv.standardtekst.statisk_tekst.obligatorisk']}"/>
+    </div>
+</composite:implementation>
+</html>

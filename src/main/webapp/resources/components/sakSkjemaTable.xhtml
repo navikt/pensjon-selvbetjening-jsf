@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:composite="http://java.sun.com/jsf/composite"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:m="http://nav.pselv.no/modig"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:pselvcore="http://www.stelvio.no/jsf/pselv/security"
+      xmlns:nav="http://www.nav.no/jsf">
+<composite:interface>
+    <composite:attribute name="form" type="no.nav.presentation.pensjon.pselv.common.CommonForm" required="true"/>
+    <composite:attribute name="tableData"
+                         type="no.nav.presentation.pensjon.pselv.publisering.support.SakerAndSkjemaTablePanel"
+                         required="true"/>
+    <composite:attribute name="userBornBefore1943" type="java.lang.Boolean" required="true"/>
+    <composite:attribute name="lopendeSak" type="java.lang.Object" required="true"/>
+</composite:interface>
+<composite:implementation>
+    <h:panelGroup layout="block" styleClass="hjelpetekst-parent">
+        <h2>
+            <h:outputText
+                    value="#{messageSource['pselv.pus002.statisk_tekst.dinpensjonsakeroverskriftskjema']}"
+                    rendered="#{cc.attrs.tableData.sakAndSkjemaListContainsOnlySkjema}"/>
+            <h:outputText
+                    value="#{messageSource['pselv.pus002.statisk_tekst.dinpensjonsakeroverskriftsak']}"
+                    rendered="#{cc.attrs.tableData.sakAndSkjemaListContainsOnlySak}"/>
+            <h:outputText
+                    value="#{messageSource['pselv.pus002.statisk_tekst.dinpensjonsakeroverskriftskjemasak']}"
+                    rendered="#{cc.attrs.tableData.sakAndSkjemaListContainsBoth}"/>
+
+        </h2>
+        <m:hjelpetekst title="#{messageSource['pselv.standardtekst.tooltip.hjelpeikon_title']}"
+                       message="#{messageSource['pselv.pus002.helppopup.hjelpskjemaer']}"
+                       rendered="#{cc.attrs.userBornBefore1943}"/>
+        <m:hjelpetekst title="#{messageSource['pselv.standardtekst.tooltip.hjelpeikon_title']}"
+                       message="#{messageSource['pselv.pus002.helpinpage.hjelpskjemaernytt']}"
+                       rendered="#{!cc.attrs.userBornBefore1943 and cc.attrs.lopendeSak == null}"/>
+        <m:hjelpetekst title="#{messageSource['pselv.standardtekst.tooltip.hjelpeikon_title']}"
+                       message="#{messageSource['pselv.pus002.helpinpage.hjelpskjemaerlopende']}"
+                       rendered="#{!cc.attrs.userBornBefore1943 and cc.attrs.lopendeSak != null}"/>
+    </h:panelGroup>
+
+    <h:outputText
+            value="#{messageSource['pselv.pus002.statisk_tekst.dinpensjoningensaker']}"
+            rendered="#{empty cc.attrs.tableData.pagedSortableSkjemaList.list}"/>
+
+    <h:dataTable id="skjemaSakTable" styleClass="table"
+                 title="skjemaSakTable"
+                 summary="#{messageSource['pselv.pus002.summary.dinpensjonsaker_summary']}"
+                 value="#{cc.attrs.tableData.pagedSortableSkjemaList.list}"
+                 var="sakSkjemaFormData"
+                 first="#{cc.attrs.tableData.pagedSortableSkjemaList.rowIndex}"
+                 rows="#{cc.attrs.tableData.pagedSortableSkjemaList.numberOfRowsOnEachPage}"
+                 rendered="#{not empty cc.attrs.tableData.pagedSortableSkjemaList.list}">
+
+        <h:column>
+            <f:facet name="header">
+                <m:sortLink linkId="navn"
+                            list="#{cc.attrs.tableData.pagedSortableSkjemaList}"
+                            render=":#{cc.clientId}:skjemaSakTable"
+                            value="#{cc.attrs.tableData.sakAndSkjemaListContainsBoth ?
+                                messageSource['pselv.pus002.statisk_tekst.dinpensjonsakerskjemanavn'] :
+                                (cc.attrs.tableData.sakAndSkjemaListContainsOnlySak ?
+                                messageSource['pselv.pus002.ledetekst.dinpensjonsakernavn']:
+                                messageSource['pselv.pus002.statisk_tekst.dinpensjonskjemanavn'])}"/>
+            </f:facet>
+            <h:commandLink action="openSkjema"
+                           title="#{sakSkjemaFormData.navn}"
+                           rendered="#{sakSkjemaFormData.erSkjema and sakSkjemaFormData.alderspensjon}">
+                <h:outputFormat value="#{sakSkjemaFormData.navn}"/>
+                <f:setPropertyActionListener target="#{cc.attrs.form.selectedSkjemaOrKrav}"
+                                             value="#{sakSkjemaFormData}"/>
+            </h:commandLink>
+
+            <h:outputLink value="${contextBean.contextPath}/skjema/uforetrygd/innledning.jsf?context=ut"
+                          rendered="#{sakSkjemaFormData.erSkjema and sakSkjemaFormData.uforetrygd}">
+                <h:outputText value="#{sakSkjemaFormData.navn}"
+                              title="#{sakSkjemaFormData.navn}"/>
+            </h:outputLink>
+
+            <h:commandLink action="openSak"
+                           title="#{sakSkjemaFormData.navn}"
+                           rendered="#{sakSkjemaFormData.erKrav}">
+                <h:outputFormat value="#{sakSkjemaFormData.navn}"/>
+                <f:setPropertyActionListener target="#{cc.attrs.form.selectedSkjemaOrKrav}"
+                                             value="#{sakSkjemaFormData}"/>
+            </h:commandLink>
+        </h:column>
+
+        <h:column>
+            <f:facet name="header">
+                <m:sortLink linkId="status"
+                            value="#{messageSource['pselv.pus002.ledetekst.dinpensjonsakerstatus']}"
+                            render=":#{cc.clientId}:skjemaSakTable"
+                            list="#{cc.attrs.tableData.pagedSortableSkjemaList}"
+                            helpTitle="#{messageSource['pselv.standardtekst.tooltip.hjelpeikon_title']}"
+                            helpMessage="#{messageSource[cc.attrs.tableData.helpPopupSakStatus]}"/>
+            </f:facet>
+            <h:outputText value="#{sakSkjemaFormData.status}, "/>
+            <h:outputText value="#{sakSkjemaFormData.dato}">
+                <f:convertDateTime pattern="dd.MM.yyyy"/>
+            </h:outputText>
+        </h:column>
+
+        <h:column>
+            <f:facet name="header">
+                <h:outputText
+                        value="#{messageSource['pselv.standardtekst.ledetekst.kolonnejegonsker']}"/>
+            </f:facet>
+            <h:panelGroup rendered="#{sakSkjemaFormData.erSkjema}">
+                <ul>
+                    <li>
+                        <h:commandLink action="openSkjema"
+                                       title="#{messageSource['pselv.pus002.tooltip.skjemaendre_title']}"
+                                       rendered="#{sakSkjemaFormData.alderspensjon}">
+                            <h:graphicImage value="/images/blyant.gif"
+                                            alt="#{messageSource['pselv.pus002.alt_tekst.skjemaendre_alt']}"/>
+                            <h:outputFormat
+                                    value="#{messageSource['pselv.standardtekst.lenketekst.fortsett']}"/>
+                            <f:setPropertyActionListener target="#{cc.attrs.form.selectedSkjemaOrKrav}"
+                                                         value="#{sakSkjemaFormData}"/>
+                        </h:commandLink>
+                        <h:outputLink
+                                value="${contextBean.contextPath}/skjema/uforetrygd/innledning.jsf?context=ut"
+                                title="#{messageSource['pselv.pus002.tooltip.skjemaendre_title']}"
+                                rendered="#{sakSkjemaFormData.uforetrygd}">
+                            <h:graphicImage value="/images/blyant.gif"
+                                            alt="#{messageSource['pselv.pus002.alt_tekst.skjemaendre_alt']}"/>
+                            <h:outputFormat value="#{messageSource['pselv.standardtekst.lenketekst.fortsett']}"/>
+                        </h:outputLink>
+                    </li>
+
+                    <li>
+                        <h:commandLink onclick="$('#deleteSkjemaModal').modal('show'); return true;"
+                                       title="#{messageSource['pselv.pus002.tooltip.skjemaslette_title']}"
+                                       disabled="#{pselvcore:isReadOnlyBrukerhjelpa()}">
+                            <h:graphicImage value="/images/slett.gif"
+                                            alt="#{messageSource['pselv.pus002.alt_tekst.skjemaslette_alt']}"
+                                            rendered="#{!pselvcore:isReadOnlyBrukerhjelpa()}"/>
+                            <h:graphicImage value="/images/slette_gra.gif"
+                                            alt="#{messageSource['pselv.pus002.alt_tekst.skjemaslette_alt']}"
+                                            rendered="#{pselvcore:isReadOnlyBrukerhjelpa()}"/>
+                            <h:outputFormat value="#{messageSource['pselv.standardtekst.lenketekst.slette']}"/>
+                            <f:ajax/>
+                            <f:setPropertyActionListener target="#{cc.attrs.form.selectedSkjemaOrKrav}"
+                                                         value="#{sakSkjemaFormData}"/>
+                        </h:commandLink>
+                    </li>
+                </ul>
+            </h:panelGroup>
+            <h:panelGroup rendered="#{sakSkjemaFormData.erKrav}">
+                <h:commandLink action="openSak"
+                               title="#{messageSource['pselv.pus002.tooltip.dinpensjonvissak_title']}">
+                    <h:graphicImage value="/images/detaljer.gif"
+                                    alt="#{messageSource['pselv.pus002.tooltip.dinpensjonvissak_title']}"/>
+                    <h:outputFormat
+                            value="#{messageSource['pselv.pus002.statisk_tekst.dinpensjonvissak']}"/>
+                    <f:setPropertyActionListener target="#{cc.attrs.form.selectedSkjemaOrKrav}"
+                                                 value="#{sakSkjemaFormData}"/>
+                </h:commandLink>
+            </h:panelGroup>
+        </h:column>
+        <nav:pageingFooterNrScroller id="footer"
+                                     tableName="skjemaSakTable"
+                                     list="#{cc.attrs.tableData.pagedSortableSkjemaList}"
+                                     altFirst="#{messageSource['pselv.standardtekst.alt_tekst.forste_alt']}"
+                                     altPrevious="#{messageSource['pselv.standardtekst.alt_tekst.forrige_alt']}"
+                                     altNext="#{messageSource['pselv.standardtekst.alt_tekst.neste_alt']}"
+                                     altLast="#{messageSource['pselv.standardtekst.alt_tekst.siste_alt']}"
+                                     middleText="#{messageSource['pselv.standardtekst.statisk_tekst.skilleordav']}"/>
+    </h:dataTable>
+
+    <m:modal action="deleteSkjema"
+             id="deleteSkjemaModal"
+             title=""
+             ok="#{messageSource['pselv.standardtekst.alt_tekst.slett_alt']}"
+             cancel="#{messageSource['pselv.standardtekst.knappetekst.avbryt']}"
+             rendered="#{not empty cc.attrs.tableData.pagedSortableSkjemaList.list}">
+        <h:outputText value="#{messageSource['pselv.pus002.statisk_tekst.slettskjema']}"/>
+    </m:modal>
+</composite:implementation>
+</html>

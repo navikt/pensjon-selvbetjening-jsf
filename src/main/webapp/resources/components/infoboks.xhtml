@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:composite="http://java.sun.com/jsf/composite">
+<composite:interface>
+    <composite:attribute name="styleClass" type="java.lang.String" required="false" default=""/>
+</composite:interface>
+<composite:implementation>
+    <div class="kvitteringsmelding #{cc.attrs.styleClass}">
+        <p class="inner">
+            <span class="infomelding-ikon">!</span>
+            <composite:insertChildren/>
+        </p>
+    </div>
+</composite:implementation>
+</html>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
+<ui:composition>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=9"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+
+    <title>#{messageSource[form.pageTitle]}</title>
+
+    <h:outputScript name="webjars/jquery/1.11.1/jquery.min.js"/>
+
+    {{fragment.scripts}}
+    {{fragment.megamenu-resources}}
+    {{fragment.styles}}
+
+    <link rel="stylesheet" href="#{resource['css/modig-pensjon.css']}?v=#{startup.time}"/>
+
+    <h:outputScript name="webjars/jquery-ui/1.11.1/jquery-ui.min.js"/>
+    <h:outputScript name="javascript/legacy/javascript.js"/>
+    <h:outputScript name="javascript/innlogging.js"/>
+
+</ui:composition>
+</html>

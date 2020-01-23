@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:c="http://java.sun.com/jsp/jstl/core"
+      xmlns:composite="http://java.sun.com/jsf/composite">
+<composite:interface>
+    <composite:attribute name="navigationStep" type="pselv2.apsoknad.NavigationStepData" required="true"/>
+    <composite:attribute name="open" type="java.lang.Boolean" required="false"/>
+    <composite:attribute name="action" targets="knapp" required="false"/>
+</composite:interface>
+<composite:implementation>
+    <c:choose>
+        <c:when test="#{!cc.attrs.open}">
+            <h:panelGroup layout="block"
+                          styleClass="spm-blokk accordion-group#{cc.attrs.navigationStep.validated ? ' validert' : ''}">
+                <div class="accordion-heading">
+                    <h:commandLink id="knapp" styleClass="accordion-header"
+                                   disabled="#{cc.attrs.navigationStep.disabled}">
+                        <f:setPropertyActionListener target="#{flowScope.openStepIndex}"
+                                                     value="#{cc.attrs.navigationStep.step}"/>
+                        <div class="#{cc.attrs.navigationStep.disabled ? 'flipp-disabled' : 'flipp'}"></div>
+                        <h2 class="stor">
+                            <h:outputText value="#{messageSource[cc.attrs.navigationStep.title]}"/>
+                        </h2>
+                    </h:commandLink>
+                </div>
+            </h:panelGroup>
+        </c:when>
+        <c:otherwise>
+            <h:panelGroup id="main-step-body" layout="block"
+                          styleClass="spm-blokk accordion-group open #{cc.attrs.navigationStep.validated ? 'validert' : ''}">
+                <div class="accordion-heading">
+                    <div class="flipp"></div>
+                    <h:panelGroup rendered="#{flowScope.ut}">
+                        <h2 class="stor">
+                            <h:outputText value="#{messageSource[cc.attrs.navigationStep.title]}"/>
+                        </h2>
+                    </h:panelGroup>
+                    <h:panelGroup rendered="#{not flowScope.ut}">
+                        <h2 class="stor">
+                            <h:outputText
+                                    value="#{cc.attrs.navigationStep.currentPage ? messageSource[form.pageTitle] : 'messageSource[cc.attrs.navigationStep.title]'}"/>
+                        </h2>
+                    </h:panelGroup>
+                </div>
+                <div class="accordion-body clearfix collapse in">
+                    <div class="accordion-inner">
+                        <div class="skjemaramme">
+                            <composite:insertChildren/>
+                        </div>
+                    </div>
+                </div>
+            </h:panelGroup>
+        </c:otherwise>
+    </c:choose>
+</composite:implementation>
+</html>

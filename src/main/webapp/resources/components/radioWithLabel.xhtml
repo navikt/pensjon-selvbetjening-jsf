@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:m="http://nav.pselv.no/modig"
+      xmlns:composite="http://java.sun.com/jsf/composite"
+      xmlns:ui="http://java.sun.com/jsf/composite">
+<composite:interface>
+    <composite:attribute name="inputId" type="java.lang.String" required="true"/>
+    <composite:attribute name="label" type="java.lang.String" required="false"/>
+    <composite:attribute name="value" type="java.lang.Object" required="true"/>
+    <composite:attribute name="showSummary" type="java.lang.Boolean" required="false" default="false"/>
+    <composite:attribute name="showDetail" type="java.lang.Boolean" required="false" default="true"/>
+    <composite:attribute name="showErrorMessage" type="java.lang.Boolean" required="false" default="true"/>
+    <composite:attribute name="helpTitle" type="java.lang.String" required="false"/>
+    <composite:attribute name="helpMessage" type="java.lang.String" required="false"/>
+    <composite:attribute name="helpKey" type="java.lang.String" required="false"/>
+    <composite:attribute name="showAsterisk" type="java.lang.Boolean" required="false" default="false"/>
+    <composite:attribute name="disabled" type="java.lang.Boolean" required="false" default="false"/>
+    <composite:attribute name="layout" type="java.lang.String" required="false" default="lineDirection"/>
+    <composite:clientBehavior name="click" event="click" targets="#{cc.attrs.inputId}"/>
+</composite:interface>
+<composite:implementation>
+    <div class="form-linje hjelpetekst-parent#{cc.findComponent(cc.attrs.inputId).valid ? '' : ' feil'}">
+        <span class="input-with-label-first-line">
+            <h:outputText id="#{cc.attrs.inputId}Label" value="#{cc.attrs.label}"
+                          styleClass="input-with-label label"
+                          rendered="#{not empty cc.attrs.label}" escape="false"/>
+            <h:outputText id="#{cc.attrs.inputId}Asterisk" value="*" styleClass="input-with-label asterisk"
+                          rendered="#{cc.attrs.showAsterisk}"/>
+            <m:hjelpetekst title="#{cc.attrs.helpTitle}"
+                           message="#{cc.attrs.helpMessage}" key="#{cc.attrs.helpKey}"
+                           rendered="#{not empty cc.attrs.helpTitle or not empty cc.attrs.helpMessage or not empty cc.attrs.helpKey}"/>
+        </span>
+
+        <span class="input-with-label-second-line">
+                <h:selectOneRadio value="#{cc.attrs.value}" id="#{cc.attrs.inputId}" layout="#{cc.attrs.layout}"
+                                  disabled="#{cc.attrs.disabled}">
+                    <ui:insertChildren/>
+                </h:selectOneRadio>
+        </span>
+
+        <h:message for="#{cc.attrs.inputId}"
+                   showSummary="#{cc.attrs.showSummary}"
+                   showDetail="#{cc.attrs.showDetail}"
+                   rendered="#{cc.attrs.showErrorMessage}"
+                   styleClass="melding"/>
+    </div>
+</composite:implementation>
+</html>

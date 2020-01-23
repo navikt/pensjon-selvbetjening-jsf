@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:nav="http://www.nav.no/jsf">
+<ui:composition template="/WEB-INF/view/templates/ramme-pselv.xhtml">
+
+    <ui:param name="enableRightColumn" value="#{form.enableRightColumn}"/>
+    <ui:param name="hideLeftMenu" value="#{form.hideLeftMenu}"/>
+
+    <ui:define name="leftmenu">
+        <nav:leftmenu where="#{form.where}"/>
+    </ui:define>
+
+    <ui:define name="mainWindow">
+
+        <h:form id="pageFormId" styleClass="#{not empty formClass ? formClass : 'vertikal'}">
+            <ui:insert name="pageContent">-missing pageContent-</ui:insert>
+        </h:form>
+
+    </ui:define>
+
+</ui:composition>
+</html>

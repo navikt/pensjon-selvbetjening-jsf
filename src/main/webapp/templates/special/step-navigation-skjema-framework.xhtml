@@ -1,0 +1,72 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:m="http://nav.pselv.no/modig"
+      xmlns:pselvcore="http://www.stelvio.no/jsf/pselv/security">
+
+<ui:composition template="/WEB-INF/view/templates/ramme-skjermbildemal.xhtml">
+
+    <ui:param name="cssClassContentContainer" value="pensjonskalkulator"/>
+
+    <ui:define name="pageContent">
+
+        <ui:insert name="kalkulator-body-error"/>
+
+        <m:accordion id="accordion">
+
+            <ui:repeat id="stepListHeader" value="#{flowScope.stepHolder.stepList}" var="navigationStep">
+                <m:accordionPanel action="openStep" navigationStep="#{navigationStep}" rendered="#{!navigationStep.currentPage and navigationStep.visited and (flowScope.stepHolder.currentStepIndex &gt; navigationStep.step-1)}"/>
+            </ui:repeat>
+
+            <m:accordionPanel id="mainAccordion" navigationStep="#{flowScope.stepHolder.currentStep}" open="true">
+
+                <h:messages id="stepNavigationMessages" showSummary="true" showDetail="false" globalOnly="true" styleClass="varselmeldinger-ul" />
+
+                <ui:insert name="skjema-body"/>
+
+                <h:panelGroup layout="block" styleClass="NAVselectedStepNavigation" rendered="#{flowScope.form.showGaaVidereKnapp}">
+
+                    <h:panelGroup id="navigationButtons" layout="block" styleClass="knapperad">
+                        <h:commandButton action="cancel"
+                                         styleClass="knapp-normal-liten"
+                                         onclick="if(!confirm('#{messageSource['pselv.sks002.dialogboks.bekreftavbrytogslett']}')){ return false; }"
+                                         value="#{messageSource['pselv.standardtekst.lenketekst.avbrytogslettskjema_lenke']}"
+                                         title="#{messageSource['pselv.standardtekst.tooltip.avbrytogslettskjema_title']}"/>
+
+                        <h:panelGroup id="skjemaNextStepButtonPanel">
+                            <h:commandButton id="nextStepButton" action="openNextStep"
+                                             value="#{messageSource['pselv.standardtekst.knappetekst.lagreoggavidere']}"
+                                             alt="#{messageSource['pselv.standardtekst.alt_tekst.gavidere_alt']}"
+                                             title="#{messageSource['pselv.standardtekst.tooltip.lagreoggavidere_title']}"
+                                             rendered="#{not flowScope.stepHolder.currentStepLastStep or flowScope.stepHolder.currentStepIndex == 0 }"
+                                             styleClass="knapp-hoved-liten"
+                                             onclick="if(#{flowScope.form.showDialogboks}){
+									if(!confirm('#{flowScope.form.dialogboksMessage}')){
+										return false;
+									}
+								}"/>
+                        </h:panelGroup>
+
+                        <h:commandButton id="LastStepButton" action="godkjennOgSendInn"
+                                         value="#{messageSource['pselv.sks013.statisk_tekst.bekreftsendinn']}"
+                                         alt="#{messageSource['pselv.standardtekst.alt_tekst.gavidere_alt']}"
+                                         title="#{messageSource['pselv.sks013.tooltip.bekreftsendinn_title']}"
+                                         rendered="#{flowScope.stepHolder.currentStepLastStep and flowScope.stepHolder.currentStepIndex != 0}"
+                                         styleClass="knapp-hoved-liten" disabled="#{pselvcore:isReadOnlyBrukerhjelpa()}"/>
+
+                    </h:panelGroup>
+                </h:panelGroup>
+            </m:accordionPanel>
+
+            <ui:repeat id="stepListFooter" value="#{flowScope.stepHolder.stepList}" var="navigationStepFooter">
+                <m:accordionPanel action="openNextStep" navigationStep="#{navigationStepFooter}" rendered="#{!navigationStepFooter.currentPage and !navigationStepFooter.visited and !navigationStepFooter.disabled and flowScope.stepHolder.currentStepIndex &lt; navigationStepFooter.step}"/>
+                <m:accordionPanel navigationStep="#{navigationStepFooter}" rendered="#{!navigationStepFooter.currentPage and !navigationStepFooter.visited and navigationStepFooter.disabled and flowScope.stepHolder.currentStepIndex &lt; navigationStepFooter.step}"/>
+            </ui:repeat>
+
+        </m:accordion>
+        <script type="text/javascript">scrollToYPosOfSelectedStepNavigatorPane('.accordion-group.open');</script>
+    </ui:define>
+</ui:composition>
+</html>

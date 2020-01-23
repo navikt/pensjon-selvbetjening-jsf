@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:pselvcore="http://www.stelvio.no/jsf/pselv/security"
+      lang="no"
+      class="no-js">
+
+<h:head>
+    <ui:insert name="eum">
+        <script charset='UTF-8'>
+            window['adrum-start-time'] = new Date().getTime();
+            (function (config) {
+                function isRunningInProd() {
+                    return (window.location.href.indexOf("//nav.no") > -1) || (window.location.href.indexOf("//tjenester.nav.no") > -1);
+                }
+
+                if (isRunningInProd()) {
+                    config.adrumExtUrlHttps = 'https://jsagent.nav.no';
+                    config.beaconUrlHttps = 'https://eumgw.nav.no';
+                    config.appKey = 'EUM-AAB-AXE';
+                } else {
+                    config.adrumExtUrlHttps = 'https://jsagent.adeo.no';
+                    config.beaconUrlHttps = 'https://eumgw.adeo.no';
+                    config.appKey = 'EUM-AAB-AXF';
+                }
+
+                config.spa = {"spa2": true};
+                config.xd = {enable: false};
+            })(window['adrum-config'] || (window['adrum-config'] = {}));
+        </script>
+        <script src='https://jsagent.adeo.no/adrum/adrum.js'></script>
+    </ui:insert>
+
+    <ui:include src="common/ramme-header.xhtml"/>
+</h:head>
+
+<h:body styleClass="#{bodyClass}">
+    <div class="pagewrapper">
+        {{fragment.header-withmenu}}
+        <main id="maincontent" role="main" tabindex="-1">
+            <ui:include src="common/ramme-brukerinfo-menu.xhtml"/>
+
+            <h:panelGroup styleClass="container maincontent #{containerClass}" layout="block">
+                <div class="row">
+                    <h:panelGroup styleClass="col-md-3 menuContainer" rendered="#{not hideLeftMenu}" layout="block">
+                        <ui:insert name="leftmenu">-missing leftmenu (or set hideLeftMenu=true)-</ui:insert>
+                    </h:panelGroup>
+
+                    <div class="#{hideLeftMenu ? 'col-md-12' : 'col-md-9'} #{cssClassContentContainer != null ? cssClassContentContainer : ''} content-container">
+                        <ui:insert name="mainWindow">-missing mainWindow-</ui:insert>
+
+                        <h:panelGroup rendered="#{enableRightColumn and (forside and not pselvcore:isWorkingOnBehalfOf())}">
+                            <ui:insert name="rightColumn">-missing rightColumn (or set enableRightColumn=false)-</ui:insert>
+                        </h:panelGroup>
+                    </div>
+                </div>
+            </h:panelGroup>
+        </main>
+    </div>
+    {{fragment.footer-withmenu}}
+</h:body>
+</html>

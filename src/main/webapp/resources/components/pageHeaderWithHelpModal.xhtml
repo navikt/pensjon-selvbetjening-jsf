@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:m="http://nav.pselv.no/modig"
+      xmlns:composite="http://java.sun.com/jsf/composite"
+      xmlns:h="http://java.sun.com/jsf/html">
+<!--@elvariable id="form" type="no.nav.presentation.pensjon.pselv.common.CommonForm"-->
+<composite:interface>
+    <composite:attribute name="value" type="java.lang.String" required="true"/>
+    <composite:attribute name="helpKey" type="java.lang.String" required="true"/>
+    <composite:attribute name="title" type="java.lang.String" required="false"/>
+    <composite:attribute name="modalId" type="java.lang.String" required="false"/>
+</composite:interface>
+<composite:implementation>
+    <header>
+        <div class="hjelpetekst-parent">
+            <h1>
+                <h:outputText value="#{cc.attrs.value}"/>
+            </h1>
+
+            <m:hjelpetekst key="#{cc.attrs.helpKey}" title="#{cc.attrs.title}" modalId="#{cc.attrs.modalId}"/>
+        </div>
+
+        <h:messages rendered="#{form.showGlobalMessages}" id="globalMessages" showSummary="true" showDetail="false"
+                    globalOnly="true" styleClass="varselmeldinger-ul"/>
+
+        <noscript>
+            <h:panelGroup id="NAVNoScriptContainer">
+                <ul class="varselmeldinger-ul">
+                    <li>
+                        <h:outputText value="#{messageSource['pselv.standardtekst.noscript.noscript']}"/>
+                    </li>
+                </ul>
+            </h:panelGroup>
+        </noscript>
+    </header>
+</composite:implementation>
+</html>
