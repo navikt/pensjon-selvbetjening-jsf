@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faces-config xmlns="http://java.sun.com/xml/ns/javaee"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-facesconfig_2_0.xsd"
+              version="2.0">
+    <application>
+        <navigation-handler>org.springframework.web.jsf.DelegatingNavigationHandlerProxy</navigation-handler>
+        <el-resolver>org.springframework.web.jsf.el.WebApplicationContextFacesELResolver</el-resolver>
+        <el-resolver>no.nav.presentation.pensjon.common.elresolver.EmptyToNullStringELResolver</el-resolver>
+
+        <locale-config>
+            <default-locale>no</default-locale>
+        </locale-config>
+
+        <message-bundle>messages</message-bundle>
+    </application>
+
+    <factory>
+        <render-kit-factory>no.nav.presentation.pensjon.pselv.jsf.html5.Html5RenderKitFactory</render-kit-factory>
+    </factory>
+
+    <lifecycle>
+        <!-- Note: Do NOT add a JeeSecurityPhaseListener here. The JeeSecurityPhaseListener is -->
+        <!-- injected in prs-security-context -->
+        <!-- Multi-caster that broadcast phase events to all PhaseListeners managed by Spring -->
+        <phase-listener>org.springframework.web.jsf.DelegatingPhaseListenerMulticaster</phase-listener>
+    </lifecycle>
+
+    <validator>
+        <validator-id>emailValidator</validator-id>
+        <validator-class>no.nav.presentation.pensjon.pselv.common.validation.Jsf20EmailValidator</validator-class>
+    </validator>
+    <validator>
+        <validator-id>phoneValidator</validator-id>
+        <validator-class>no.nav.presentation.pensjon.pselv.common.validation.Jsf20PhoneValidator</validator-class>
+    </validator>
+    <validator>
+        <validator-id>numberValidator</validator-id>
+        <validator-class>no.nav.presentation.pensjon.pselv.common.validation.Jsf20NumberValidator</validator-class>
+    </validator>
+
+    <component>
+        <component-type>no.nav.UIChart</component-type>
+        <component-class>no.nav.presentation.pensjon.pselv.tag.chartcreator.UIChart</component-class>
+    </component>
+    <component>
+        <component-type>no.nav.HelpPopUpComponent</component-type>
+        <component-class>no.nav.presentation.pensjon.common.taglib.help.HelpPopUpComponent</component-class>
+    </component>
+    <component>
+        <component-type>no.nav.AligningHelpInPageComponent</component-type>
+        <component-class>no.nav.presentation.pensjon.common.taglib.help.AligningHelpInPageComponent</component-class>
+    </component>
+    <component>
+        <component-type>no.nav.AligningHelpDisplayAreaComponent</component-type>
+        <component-class>no.nav.presentation.pensjon.common.taglib.help.AligningHelpDisplayAreaComponent</component-class>
+    </component>
+    <component>
+        <component-type>no.nav.SplitTextItemSelectOneMenu</component-type>
+        <component-class>no.nav.presentation.pensjon.pselv.tag.SplitTextItemSelectOneMenu</component-class>
+    </component>
+
+    <managed-bean>
+        <managed-bean-name>componentBindingMap</managed-bean-name>
+        <managed-bean-class>java.util.HashMap</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
+    <managed-bean>
+        <description>Startup Date</description>
+        <managed-bean-name>startup</managed-bean-name>
+        <managed-bean-class>java.util.Date</managed-bean-class>
+        <managed-bean-scope>application</managed-bean-scope>
+    </managed-bean>
+</faces-config>
