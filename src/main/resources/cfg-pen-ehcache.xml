@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<ehcache updateCheck="false" name="no.navn.pen.CacheManager">
+    <!--
+        EH cache configuration for all applications. See me before you edit this file.
+        bma2812
+    -->
+    <defaultCache maxElementsInMemory="1" eternal="false"
+                  timeToLiveSeconds="120" overflowToDisk="false"
+                  diskPersistent="false" diskExpiryThreadIntervalSeconds="120" timeToIdleSeconds="360"/>
+
+    <cache name="grunnbelopListeCache" maxElementsInMemory="5000"
+           eternal="false" overflowToDisk="false" timeToLiveSeconds="6000"
+           memoryStoreEvictionPolicy="LRU" timeToIdleSeconds="720"/>
+
+    <cache name="ctiCache" maxElementsInMemory="5000" eternal="false"
+           overflowToDisk="false" timeToLiveSeconds="6000"
+           memoryStoreEvictionPolicy="LRU" timeToIdleSeconds="720">
+        <cacheEventListenerFactory
+                class="no.nav.repository.pensjon.common.cache.LoggingElementPutCacheEventListenerFactory"/>
+    </cache>
+
+    <cache name="semistaticdomaincache" maxElementsInMemory="5000"
+           eternal="false" overflowToDisk="false" timeToLiveSeconds="6000"
+           memoryStoreEvictionPolicy="LRU" timeToIdleSeconds="720"/>
+
+    <cache name="penPersonQueryCache" maxElementsInMemory="5000"
+           eternal="false" overflowToDisk="false" timeToLiveSeconds="120"
+           memoryStoreEvictionPolicy="LRU" timeToIdleSeconds="120"/>
+
+    <cache name="no.stelvio.common.codestable.items"
+           maxElementsInMemory="5000" eternal="false" overflowToDisk="false"
+           timeToLiveSeconds="60000" memoryStoreEvictionPolicy="LRU" timeToIdleSeconds="720">
+        <cacheEventListenerFactory
+                class="no.nav.repository.pensjon.common.cache.LoggingElementPutCacheEventListenerFactory"/>
+    </cache>
+
+    <cache name="domainCache" maxElementsInMemory="15000"
+           eternal="false" overflowToDisk="false" timeToLiveSeconds="600"
+           memoryStoreEvictionPolicy="LRU" timeToIdleSeconds="360"/>
+
+    <cache name="grunnbelopCache" maxElementsInMemory="5000"
+           eternal="false" overflowToDisk="false" timeToLiveSeconds="6000"
+           memoryStoreEvictionPolicy="LRU" timeToIdleSeconds="720"/>
+
+    <!--
+        Cache used by the consumer integration layer in PEN, PSAK and PSELV
+    -->
+
+    <cache name="personCache" maxElementsInMemory="20000" eternal="false"
+           timeToLiveSeconds="720" overflowToDisk="false"
+           diskPersistent="false" memoryStoreEvictionPolicy="LRU" timeToIdleSeconds="360">
+        <cacheEventListenerFactory
+                class="no.nav.repository.pensjon.common.cache.LoggingElementPutCacheEventListenerFactory"/>
+    </cache>
+
+    <cache name="aktoerCache" maxElementsInMemory="1000"
+           eternal="false" overflowToDisk="false" timeToLiveSeconds="3600"
+           memoryStoreEvictionPolicy="LRU" timeToIdleSeconds="120"/>
+
+    <cache name="geografiskTilknytningCache" maxElementsInMemory="20000" eternal="false"
+           timeToLiveSeconds="720" overflowToDisk="false"
+           diskPersistent="false" memoryStoreEvictionPolicy="LRU" timeToIdleSeconds="360">
+    </cache>
+
+    <cache name="finnBehandlendeEnhetListeCache" maxElementsInMemory="1000" eternal="false"
+           timeToLiveSeconds="720" overflowToDisk="false"
+           diskPersistent="false" memoryStoreEvictionPolicy="LRU" timeToIdleSeconds="360"/>
+
+    <cache name="familieRelasjonsCache" maxElementsInMemory="1000" eternal="false"
+           timeToLiveSeconds="360" overflowToDisk="false"
+           diskPersistent="false" memoryStoreEvictionPolicy="LRU" timeToIdleSeconds="120"/>
+
+    <cache name="utbetalingCache" maxElementsInMemory="1000" eternal="false"
+           timeToLiveSeconds="720" overflowToDisk="false"
+           diskPersistent="false" memoryStoreEvictionPolicy="LRU" timeToIdleSeconds="360"/>
+
+    <cache name="samhandlerCache" maxElementsInMemory="1000"
+           eternal="false" timeToLiveSeconds="86400"
+           overflowToDisk="false" diskPersistent="false"
+           memoryStoreEvictionPolicy="LRU" timeToIdleSeconds="720"/>
+
+    <cache name="navAnsattCache" maxElementsInMemory="4000"
+           eternal="false" timeToLiveSeconds="86400"
+           overflowToDisk="false" diskPersistent="false"
+           memoryStoreEvictionPolicy="LRU" timeToIdleSeconds="43200"/>
+
+    <cache name="navEnhetCache" maxElementsInMemory="1000"
+           eternal="false" timeToLiveSeconds="86400"
+           overflowToDisk="false" diskPersistent="false"
+           memoryStoreEvictionPolicy="LRU" timeToIdleSeconds="86400"/>
+
+    <!--Cache used for Application parameters -->
+    <cache name="applikasjonsparameterCache" maxElementsInMemory="15"
+           eternal="false" timeToLiveSeconds="3600"
+           overflowToDisk="false" diskPersistent="false"
+           memoryStoreEvictionPolicy="LRU" timeToIdleSeconds="720"/>
+
+    <cache name="toleransegrenseCache" maxElementsInMemory="15"
+           eternal="false" timeToLiveSeconds="3600"
+           diskPersistent="false" overflowToDisk="false"
+           memoryStoreEvictionPolicy="LRU" timeToIdleSeconds="3600"/>
+
+<!--    <cache name="samlTokenCache"-->
+<!--           maxElementsInMemory="500"-->
+<!--           eternal="false"-->
+<!--           timeToLiveSeconds="${no.nav.security.pensjon.sts.cache.timetolive.seconds}"-->
+<!--           timeToIdleSeconds="${no.nav.security.pensjon.sts.cache.timetoidle.seconds}"-->
+<!--           diskPersistent="false"-->
+<!--           overflowToDisk="false"-->
+<!--           memoryStoreEvictionPolicy="LRU"/>-->
+<!--    TODO Use ${no.nav.security.pensjon.sts.cache.timetolive.seconds}-->
+    <cache name="samlTokenCache"
+           maxElementsInMemory="500"
+           eternal="false"
+           timeToLiveSeconds="2400"
+           timeToIdleSeconds="600"
+           diskPersistent="false"
+           overflowToDisk="false"
+           memoryStoreEvictionPolicy="LRU"/>
+
+    <cache name="forholdstallCache"
+           maxElementsInMemory="4000"
+           eternal="false"
+           timeToLiveSeconds="86400"
+           timeToIdleSeconds="86400"
+           diskPersistent="false"
+           overflowToDisk="false"
+           memoryStoreEvictionPolicy="LRU"/>
+
+    <cache name="delingstallCache"
+           maxElementsInMemory="4000"
+           eternal="false"
+           timeToLiveSeconds="86400"
+           timeToIdleSeconds="86400"
+           diskPersistent="false"
+           overflowToDisk="false"
+           memoryStoreEvictionPolicy="LRU"/>
+</ehcache>
