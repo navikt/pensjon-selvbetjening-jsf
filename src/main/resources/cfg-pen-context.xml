@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jee="http://www.springframework.org/schema/jee"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:cache="http://www.springframework.org/schema/cache"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/jee
+                           http://www.springframework.org/schema/jee/spring-jee.xsd
+                           http://www.springframework.org/schema/aop
+                           http://www.springframework.org/schema/aop/spring-aop.xsd
+                           http://www.springframework.org/schema/cache
+                           http://www.springframework.org/schema/cache/spring-cache.xsd">
+
+    <bean id="componentIdHolder" class="no.stelvio.common.context.support.ComponentIdHolder" scope="singleton">
+        <constructor-arg value="PP01" />
+    </bean>
+
+    <!-- Message source for static messages in PEN.
+        Implements org.springframework.context.MessageSource -->
+<!--    <bean id="pen.messageSource" class="no.nav.repository.pensjon.util.ResourceBundleNewLineMessageSource">-->
+<!--        <constructor-arg value="¤" />-->
+<!--        <property name="basenames">-->
+<!--            <list>-->
+<!--                <value>no-nav-pensjon-pen-resources</value>-->
+<!--                <value>cfg-pen-provider-environment</value>-->
+<!--            </list>-->
+<!--        </property>-->
+<!--    </bean>-->
+
+    <!-- Constants for simulation in PEN -->
+    <bean id="pen.constantsSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+        <property name="basename" value="pen-constants" />
+    </bean>
+
+    <!-- Stelvio 1.0.6 error handling config -->
+    <!-- Interceptor is not currently configured -->
+
+    <bean id="pen.exceptionLogger" class="no.stelvio.common.error.logging.support.DefaultExceptionLogger">
+        <property name="logLevelMessageSource" ref="pen.logLevels" />
+    </bean>
+
+    <bean id="pen.logLevels" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+        <property name="basename" value="pen-loglevels" />
+        <property name="cacheSeconds" value="900" />
+    </bean>
+
+    <!-- ==============================================================
+        Cache config
+        =============================================================== -->
+    <bean id="cns.pen.cacheHelper" class="no.nav.consumer.pensjon.common.utils.CacheHelper">
+        <property name="manager" ref="cns.pen.ehcacheManager"/>
+    </bean>
+
+    <bean id="cns.pen.autoproxy" class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" />
+
+    <cache:annotation-driven cache-manager="cns.pen.springCacheManager" />
+
+    <bean id="cns.pen.ehcacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+        <property name="configLocation" value="classpath:cfg-pen-ehcache.xml" />
+        <property name="shared" value="true" />
+    </bean>
+
+    <bean id="cns.pen.springCacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager">
+        <property name="cacheManager" ref="cns.pen.ehcacheManager"/>
+    </bean>
+
+    <!-- Base bean for all service interfaces -->
+    <bean id="consumerFacadeBase" abstract="true" class="no.stelvio.consumer.ws.ConsumerFacadeBase">
+        <!--		class="no.nav.stelvio.consumer.support.ConsumerFacadeBase">-->
+        <property name="portServerAddress" value="${cons.pen.portserveraddress.url}" />
+        <property name="securityEnabled" value="${cons.pen.securityenabled}" />
+        <property name="serviceUsername"
+                  value="${cons.pen.service.credential.username:#{null}}" />
+        <property name="servicePassword"
+                  value="${cons.pen.service.credential.password:#{null}}" />
+    </bean>
+</beans>

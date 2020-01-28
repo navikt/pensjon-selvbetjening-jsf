@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:cache="http://www.springframework.org/schema/cache"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/cache
+                           http://www.springframework.org/schema/cache/spring-cache.xsd">
+
+<!--    <bean id="cfg.propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">-->
+<!--        <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE"/>-->
+<!--        <property name="searchSystemEnvironment" value="true"/>-->
+<!--        <property name="trimValues" value="true"/>-->
+<!--        <property name="locations">-->
+<!--            <list>-->
+<!--                <value>classpath:cfg-pselv-environment.properties</value>-->
+<!--                <value>classpath:cfg-pen-provider-environment.properties</value>-->
+<!--                <value>classpath:cfg-pen-consumer-endpoints.properties</value>-->
+<!--                <value>classpath:nav-security-pensjon-common-java.properties</value>-->
+<!--            </list>-->
+<!--        </property>-->
+<!--        <property name="ignoreUnresolvablePlaceholders" value="false"/>-->
+<!--    </bean>-->
+
+    <bean id="cns.pselv.escapeCharacterBean" class="java.util.HashMap">
+        <constructor-arg>
+            <map>
+                <entry key="&lt;" value="lt"/>
+                <entry key="&gt;" value="gt"/>
+                <!-- & -->
+                <entry key="&amp;" value="amp"/>
+                <!-- + -->
+                <entry key="+" value="#43"/>
+                <!-- % -->
+                <entry key="%" value="#37"/>
+            </map>
+        </constructor-arg>
+    </bean>
+
+    <!-- ==============================================================
+        Cache config for Consumer Integration
+        =============================================================== -->
+    <bean id="cns.pselv.cacheHelper" class="no.nav.consumer.pensjon.common.utils.CacheHelper">
+        <property name="manager" ref="cns.pselv.ehcacheManager"/>
+    </bean>
+
+    <bean id="cns.pselv.autoproxy" class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"/>
+
+    <cache:annotation-driven cache-manager="cns.pselv.springCacheManager"/>
+
+    <bean id="cns.pselv.ehcacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+        <property name="configLocation" value="classpath:cfg-pen-ehcache.xml"/>
+        <property name="shared" value="true"/>
+    </bean>
+
+    <bean id="cns.pselv.springCacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager">
+        <property name="cacheManager" ref="cns.pselv.ehcacheManager"/>
+    </bean>
+</beans>

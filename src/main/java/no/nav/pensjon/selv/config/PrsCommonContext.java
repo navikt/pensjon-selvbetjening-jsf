@@ -55,6 +55,15 @@ public class PrsCommonContext {
         return factory;
     }
 
+    @Bean(name = "loginserviceRedirectAction")
+    public LoginserviceRedirectAction loginserviceRedirectAction() {
+        LoginserviceRedirectAction action = new LoginserviceRedirectAction();
+        action.setMessageSource(messageSource);
+        action.setSelvbetjeningssone(selvbetjeningssone());
+        action.setAllowedSkew(10);
+        return action;
+    }
+
     @Bean(name = "prs.pselv.commonActionDelegate")
     public CommonActionDelegate commonActionDelegate() {
         CommonActionDelegate delegate = new CommonActionDelegate();
@@ -136,7 +145,7 @@ public class PrsCommonContext {
         retriever.setBaseUrl("https://appres-t4.nav.no/"); // ${appres.cms.url}
 //        retriever.setCacheManager(ehCacheManagerFactoryBean);
         retriever.setCacheManager(CacheManager.create()); //TODO cns.pselv.ehcacheManager (ehCacheManagerFactoryBean)
-        retriever.setRefreshIntervalSeconds(60000); // ${appres.cms.refreshIntervalSeconds}
+//        retriever.setRefreshIntervalSeconds(60000); // ${appres.cms.refreshIntervalSeconds}
         return retriever;
     }
 }

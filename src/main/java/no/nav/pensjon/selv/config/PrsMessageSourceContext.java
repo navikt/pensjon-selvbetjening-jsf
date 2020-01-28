@@ -11,7 +11,7 @@ public class PrsMessageSourceContext {
     @Bean(name = "messageSource")
     public TeksterMessageSourceFactoryBean messageSource() {
         TeksterMessageSourceFactoryBean bean = new TeksterMessageSourceFactoryBean();
-        bean.setBasenames(new String[]{"no-nav-pensjon-pen-resources", "cfg-pen-provider-environment", "file:/Users/egjostol/IdeaProjects/pselv2/src/main/resources/tekster-properties"});
+        bean.setBasenames(new String[]{"no-nav-pensjon-pen-resources", "cfg-pen-provider-environment", "file:/PATH/resources/tekster-properties"}); // TODO replace PATH
         bean.setUseCodeAsDefaultMessage(true);
         bean.setCacheRefresh(60);
         bean.setHelpPageBaseUrl("http://help");
