@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                          http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+    <context:component-scan base-package="no.nav.pensjon.selv.config" />
+
+    <!-- Definition of action class -->
+    <bean id="dinPensjonAction" class="no.nav.presentation.pensjon.pselv.publisering.dinpensjon.DinPensjonAction">
+        <property name="formObjectName" value="form"/>
+        <property name="formObjectClass"
+                  value="no.nav.presentation.pensjon.pselv.publisering.dinpensjon.DinPensjonForm"/>
+        <property name="formObjectScope" value="FLOW"/>
+        <property name="dinPensjonActionDelegate" ref="prs.pselv.dinPensjonActionDelegate"/>
+        <property name="dinPensjonFormPopulator" ref="prs.pselv.dinPensjonFormPopulator"/>
+        <property name="commonActionDelegate" ref="prs.pselv.commonActionDelegate"/>
+        <property name="messageSource" ref="messageSource"/>
+        <property name="pselvTransferObject" ref="prs.pselv.transferObject"/>
+        <property name="dinInnboksHelper" ref="prs.pselv.dinInnboksHelper"/>
+        <property name="codesTableManager" ref="pen.codesTableManager"/>
+        <property name="vedtakService" ref="pen.vedtakService"/>
+        <property name="grunnlagService" ref="pen.grunnlagService"/>
+        <property name="utbetalingService" ref="utbetalingBi"/>
+        <property name="inntektskomponentService" ref="cons.pen.inntektServiceBi"/>
+        <property name="utbetalingCommonActionDelegate" ref="prs.pselv.utbetalingCommonActionDelegate"/>
+        <property name="isSelvbetjeningssonen" ref="selvbetjeningsSone"/>
+        <property name="beholdningService" ref="cons.pselv.opptjening.beholdningService"/>
+        <property name="opptjeningsGrunnlagService" ref="cons.pselv.opptjening.opptjeningsGrunnlagService"/>
+    </bean>
+
+    <!-- Definition of actionDelegate class -->
+    <bean id="prs.pselv.dinPensjonActionDelegate"
+          class="no.nav.presentation.pensjon.pselv.publisering.dinpensjon.DinPensjonActionDelegate">
+        <property name="skjemaService" ref="pen.skjemaService"/>
+        <property name="kravService" ref="pen.kravService"/>
+        <property name="simuleringService" ref="pen.simuleringService"/>
+        <property name="codesTableManager" ref="pen.codesTableManager"/>
+        <property name="sakService" ref="pen.sakService"/>
+        <property name="vedtakService" ref="pen.vedtakService"/>
+        <property name="personCommonActionDelegate" ref="prs.pselv.personCommonActionDelegate"/>
+        <property name="aktoerRegister" ref="cons.pen.aktoerRegisterServiceBi"/>
+    </bean>
+
+    <!-- Definition of formPopulator class -->
+    <bean id="prs.pselv.dinPensjonFormPopulator"
+          class="no.nav.presentation.pensjon.pselv.publisering.dinpensjon.DinPensjonFormPopulator">
+        <property name="messageSource" ref="messageSource"/>
+    </bean>
+
+    <!-- STUBS: TODO FIX -->
+    <bean id="pen.vedtakService" class="no.nav.pensjon.selv.service.fake.FakeVedtakService"/>
+    <bean id="pen.grunnlagService" class="no.nav.pensjon.selv.service.fake.FakeGrunnlagService"/>
+    <bean id="utbetalingBi" class="no.nav.pensjon.selv.service.fake.FakeUtbetalingService"/>
+    <bean id="cons.pen.inntektServiceBi" class="no.nav.pensjon.selv.service.fake.FakeInntektService"/>
+    <bean id="prs.pselv.utbetalingCommonActionDelegate" class="no.nav.presentation.pensjon.pselv.common.delegate.UtbetalingCommonActionDelegate"/>
+    <bean id="cons.pselv.opptjening.beholdningService" class="no.nav.pensjon.selv.service.fake.FakeBeholdningService"/>
+    <bean id="cons.pselv.opptjening.opptjeningsGrunnlagService" class="no.nav.pensjon.selv.service.fake.FakeOpptjeningsGrunnlagService"/>
+    <bean id="pen.skjemaService" class="no.nav.pensjon.selv.service.fake.FakeSkjemaService"/>
+    <bean id="pen.kravService" class="no.nav.pensjon.selv.service.fake.FakeKravService"/>
+    <bean id="pen.sakService" class="no.nav.pensjon.selv.service.fake.FakeSakService"/>
+    <bean id="pen.simuleringService" class="no.nav.pensjon.selv.service.fake.FakeSimuleringService"/>
+    <bean id="cons.pen.aktoerRegisterServiceBi" class="no.nav.pensjon.selv.service.fake.FakeAktoerRegisterService"/>
+</beans>

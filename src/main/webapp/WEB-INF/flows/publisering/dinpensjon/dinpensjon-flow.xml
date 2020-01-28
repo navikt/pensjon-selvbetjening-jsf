@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow" xmlns:ns0="http://www.w3.org/2001/XMLSchema-instance"
+      ns0:schemaLocation="http://www.springframework.org/schema/webflow http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd"
+      start-state="loginserviceRedirect">
+
+    <on-start>
+        <evaluate expression="dinPensjonAction.setupForm" />
+    </on-start>
+
+    <action-state id="loginserviceRedirect">
+        <evaluate expression="loginserviceRedirectAction.shouldRedirectToLoginservice"/>
+        <transition on="yes" to="goToLoginservice">
+            <evaluate expression="loginserviceRedirectAction.putLoginserviceUrlOnFlowScope"/>
+        </transition>
+        <transition on="no" to="initForm"/>
+    </action-state>
+
+    <action-state id="initForm">
+        <evaluate expression="dinPensjonAction.initForm" />
+        <transition on="success" to="viewMode" />
+    </action-state>
+
+    <view-state id="viewMode" view="publisering/dinpensjon/dinpensjon">
+    </view-state>
+
+    <end-state id="goToLoginservice" view="externalRedirect:${flowScope.loginserviceURL}"/>
+
+    <bean-import resource="dinpensjon-context.xml"/>
+</flow>

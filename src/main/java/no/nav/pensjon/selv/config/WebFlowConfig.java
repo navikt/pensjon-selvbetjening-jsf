@@ -22,6 +22,7 @@ public class WebFlowConfig extends AbstractFlowConfiguration {
     @Bean
     public FlowDefinitionRegistry flowRegistry() {
         return getFlowDefinitionRegistryBuilder(flowBuilderServices())
+                .addFlowLocation("/WEB-INF/flows/publisering/dinpensjon/dinpensjon-flow.xml", "dinpensjon")
                 .build();
     }
 
