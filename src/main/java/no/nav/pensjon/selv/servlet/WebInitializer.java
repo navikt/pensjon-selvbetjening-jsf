@@ -22,7 +22,11 @@ public class WebInitializer extends AbstractAnnotationConfigDispatcherServletIni
                 CfgPselvContext.class,
                 CfgPselvSecurityContext.class,
                 ConsPselvContext.class,
-                PrsCommonContext.class
+                PrsCommonContext.class,
+                PrsMessageSourceContext.class,
+                PselvWebFlowConfig.class,
+                SrvPenContextTx.class,
+                SrvPenPselvConfig.class
         };
     }
 

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:webflow="http://www.springframework.org/schema/webflow-config"
+       xmlns:faces="http://www.springframework.org/schema/faces"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/webflow-config
+            http://www.springframework.org/schema/webflow-config/spring-webflow-config.xsd
+            http://www.springframework.org/schema/faces
+            http://www.springframework.org/schema/faces/spring-faces.xsd">
+    <bean id="prs.pselv.newjsfListener" class="org.springframework.faces.webflow.FlowFacesContextLifecycleListener"/>
+
+    <faces:resources/>
+
+    <!-- Launches new flow executions and resumes existing executions. -->
+    <webflow:flow-executor id="flowExecutor" flow-registry="flowRegistry">
+        <webflow:flow-execution-attributes>
+            <webflow:always-redirect-on-pause value="true"/>
+        </webflow:flow-execution-attributes>
+
+        <webflow:flow-execution-listeners>
+            <webflow:listener ref="securityNavigationHandler"/>
+            <webflow:listener ref="prs.pselv.flowExecutionListener"/>
+            <webflow:listener ref="prs.pselv.contextListener"/>
+            <webflow:listener ref="prs.pselv.breadcrumbListener"/>
+            <webflow:listener ref="prs.pselv.newjsfListener"/>
+        </webflow:flow-execution-listeners>
+    </webflow:flow-executor>
+
+    <bean id="prs.pselv.breadcrumbListener" class="no.nav.presentation.pensjon.pselv.common.LeftMenuListener"/>
+
+    <bean id="prs.pselv.contextListener" class="no.nav.presentation.pensjon.pselv.common.PselvContextListener"/>
+
+    <!--    TODO-->
+    <!--    <bean id="breadCrumbSource" class="org.springframework.context.support.ResourceBundleMessageSource">-->
+    <!--        <property name="basename" value="no-nav-pensjon-pselv-breadcrumb"/>-->
+    <!--    </bean>-->
+
+    <bean id="securityNavigationHandler"
+          class="no.stelvio.presentation.jsf.security.webflow.SecurityFlowNavigationHandler">
+        <property name="loginFailed" value="pselv.tis005.statisk_tekst.tilgangnektetsideoverskrift"/>
+    </bean>
+
+    <bean id="prs.pselv.flowExecutionListener"
+          class="no.stelvio.presentation.error.ExceptionHandlerFlowExecutionListener">
+        <property name="exceptionHandler" ref="prs.pselv.exceptionHandler"/>
+    </bean>
+
+    <bean id="prs.pselv.exceptionHandler" class="no.nav.presentation.pensjon.pselv.avvik.FlowExecutionAvvikHandler">
+        <property name="errorPage" value="feilside"/>
+        <property name="loginPage" value="tilleggsfunksjonalitet/innlogging"/>
+        <property name="accessDeniedPage" value="tilleggsfunksjonalitet/tilgangnektet"/>
+        <property name="avvikService" ref="pen.avvikService"/>
+        <property name="vedlikeholdService" ref="pen.vedlikeholdService"/>
+    </bean>
+
+    <bean id="logLevels" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+        <property name="basename" value="cfg-pselv-loglevels"/>
+        <property name="cacheSeconds" value="900"/>
+    </bean>
+
+    <!-- Creates the registry of flow definitions for this application -->
+    <webflow:flow-registry id="flowRegistry" flow-builder-services="flowBuilderServices" base-path="/WEB-INF/flows">
+        <webflow:flow-location-pattern value="/**-flow.xml"/>
+        <webflow:flow-location-pattern value="/**/**-flow.xml"/>
+    </webflow:flow-registry>
+
+    <webflow:flow-builder-services id="flowBuilderServices" expression-parser="expressionParser"
+                                   view-factory-creator="viewFactoryCreator"/>
+
+    <bean id="viewFactoryCreator" class="org.springframework.faces.webflow.JsfViewFactoryCreator"/>
+
+    <bean id="expressionParser" class="org.springframework.binding.expression.spel.SpringELExpressionParser">
+        <constructor-arg>
+            <bean class="org.springframework.expression.spel.standard.SpelExpressionParser"/>
+        </constructor-arg>
+    </bean>
+
+    <bean class="org.springframework.webflow.mvc.servlet.FlowHandlerMapping">
+        <property name="flowRegistry" ref="flowRegistry"/>
+        <property name="order" value="0"/>
+    </bean>
+
+    <bean id="flowHandlerAdapter" class="org.springframework.faces.webflow.JsfFlowHandlerAdapter">
+        <property name="flowExecutor" ref="flowExecutor"/>
+        <property name="flowUrlHandler">
+            <bean class="org.springframework.webflow.context.servlet.DefaultFlowUrlHandler"/>
+        </property>
+    </bean>
+
+    <bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver">
+        <property name="defaultLocale" value="nb_NO"/>
+    </bean>
+
+    <!--
+        SIR234133: Bean for changing the time period that can elapse before a
+        timeout occurs on an attempt to acquire a conversation lock. Value
+        should be greater than the WAS transaction timeout, currently 7200
+        secs.
+    -->
+    <bean id="webFlowLockTimeoutSetter" class="no.nav.presentation.pensjon.common.webflow.WebFlowLockTimeoutSetter">
+        <property name="flowExecutor" ref="flowExecutor"/>
+        <property name="lockTimeoutSeconds" value="7500"/>
+    </bean>
+</beans>
