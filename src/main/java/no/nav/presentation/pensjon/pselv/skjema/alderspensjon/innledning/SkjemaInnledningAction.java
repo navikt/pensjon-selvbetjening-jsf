@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import no.nav.presentation.pensjon.pselv.common.PselvUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.webflow.execution.Event;
@@ -102,7 +103,7 @@ public class SkjemaInnledningAction extends SkjemaAlderspensjonCommonAction {
         SkjemaInnledning skjemaInnledning = domainPopulator.populateSkjemaInnledning(form, skjema);
         skjema.setSkjemaInnledning(skjemaInnledning);
 
-        if (skjemaInnledning.getSoktAfpPrivat() == false) {
+        if (!skjemaInnledning.getSoktAfpPrivat()) {
             skjema.setSkjemaAFPPrivat(null);
         }
 
@@ -202,6 +203,7 @@ public class SkjemaInnledningAction extends SkjemaAlderspensjonCommonAction {
         // PENPORT-201 Check if user has a valid EPS relation
         form.setUserHasManglendeEpsInformasjon(harManglendeEpsInformasjon(form.getBruker()));
 
+        form.setSperrefrist(PselvUtil.fetchSperreVedtakFremITid());
         formPopulator.setErrorMessageUserCantApply(form);
 
         if (!form.isShowErrorMessage()) {
@@ -217,8 +219,9 @@ public class SkjemaInnledningAction extends SkjemaAlderspensjonCommonAction {
     }
 
     protected boolean userWillBeAbleToChooseUttakstidspunktEqualTo67M(SkjemaInnledningForm form) {
+        int sperrefrist = PselvUtil.fetchSperreVedtakFremITid();
         Date bruker67M = calculateFirstDayInMonthAfterPersonTurns67(form.getBruker().getPid().getFodselsdato());
-        Date latestChooseableDateDueToSPERREFRIST = DateUtil.getFirstDayOfMonth(DateUtil.getRelativeDateByMonth(Calendar.getInstance().getTime(), PselvConstants.SPERREFRIST + 1));
+        Date latestChooseableDateDueToSPERREFRIST = DateUtil.getFirstDayOfMonth(DateUtil.getRelativeDateByMonth(Calendar.getInstance().getTime(), sperrefrist + 1));
         Date firstDayInNextMonth = DateUtil.getFirstDayOfMonth(DateUtil.getRelativeDateByMonth(Calendar.getInstance().getTime(), 1));
         return (isAfterByDay(bruker67M, firstDayInNextMonth, true)) && (isBeforeByDay(bruker67M, latestChooseableDateDueToSPERREFRIST, true));
     }
@@ -246,17 +249,17 @@ public class SkjemaInnledningAction extends SkjemaAlderspensjonCommonAction {
         Long skjemaId = skjema.getSkjemaId();
 
         Boolean barnetillegg = skjema.getSkjemaInnledning().getForsorgingstilleggBarn();
-        boolean barnetilleggIsChosen = barnetillegg != null ? barnetillegg : false;
+        boolean barnetilleggIsChosen = barnetillegg == null ? false : barnetillegg;
 
         Boolean ektefelletillegg = skjema.getSkjemaInnledning().getForsorgingstilleggEPS();
-        boolean ektefelletilleggIsChosen = ektefelletillegg != null ? ektefelletillegg : false;
+        boolean ektefelletilleggIsChosen = ektefelletillegg == null ? false : ektefelletillegg;
 
         SkjemaAlderspensjonCommonInputData inputData = new SkjemaAlderspensjonCommonInputData(skjemaId, barnetilleggIsChosen,
                 isSkjemaAlderspensjon(skjema), form.getSkjemaData());
         inputData.setEktefelletilleggIsChosen(ektefelletilleggIsChosen);
 
         Boolean afpPrivat = skjema.getSkjemaInnledning().getSoktAfpPrivat();
-        boolean afpPrivatIsChosen = afpPrivat != null ? afpPrivat : false;
+        boolean afpPrivatIsChosen = afpPrivat == null ? false : afpPrivat;
 
         inputData.setAfpPrivat(afpPrivatIsChosen);
         form.setInputData(inputData);
@@ -285,8 +288,7 @@ public class SkjemaInnledningAction extends SkjemaAlderspensjonCommonAction {
     private Date calculateFirstDayInMonthAfterPersonTurns67(Date dateOfBirth) {
         Date dateOf67m = DateUtil.getRelativeDateByYear(dateOfBirth, 67);
         dateOf67m = DateUtil.getRelativeDateByMonth(dateOf67m, 1);
-        dateOf67m = DateUtil.getFirstDayOfMonth(dateOf67m);
-        return dateOf67m;
+        return DateUtil.getFirstDayOfMonth(dateOf67m);
     }
 
     /**
@@ -424,8 +426,8 @@ public class SkjemaInnledningAction extends SkjemaAlderspensjonCommonAction {
      */
     private void populateShowMessageAFP(SkjemaInnledningForm form) {
         boolean showMessageAFP = false;
-        if (!(form.isLopendeAFP() || form.isLopendeGjenlevende() || form.isLopendeUforepensjon())
-                && formPopulator.isUserBetween62And67(form.getBruker())) {
+
+        if (!(form.isLopendeAFP() || form.isLopendeGjenlevende() || form.isLopendeUforepensjon()) && formPopulator.isUserBetween62And67(form.getBruker())) {
             try {
                 List<TjenestepensjonForhold> tjenestepensjonForholdList = skjemaInnledningActionDelegate.finnTjenestepensjonsforhold(form.getBruker().getPid().getPid());
                 showMessageAFP = !tjenestepensjonForholdList.isEmpty();
@@ -433,6 +435,7 @@ public class SkjemaInnledningAction extends SkjemaAlderspensjonCommonAction {
                 showMessageAFP = true;
             }
         }
+
         form.setHasLopendeOffentligAFP(showMessageAFP);
     }
 

@@ -18,6 +18,7 @@ public final class SkjemaInnledningConstants {
     public static final String IKKE_HOVEDYTELSE_MSG = "pselv.sks001.helpinpage.ikkehovedytelse";
     public static final String FOR_TIDLIG_SOK_ALDER_MSG = "pselv.sks001.avviksmelding.fortidligsokalder";
     public static final String MANGLER_ADRESSE_MSG = "pselv.sks001.avviksmelding.mangleradresse";
+    public static final String REGISTRER_ADRESSE_MSG = "pselv.sks001.statisk_tekst.registreradresseidinepersonopplysninger";
     public static final String FOR_GAMMEL_70_MSG = "pselv.sks001.statisk_tekst.forgammel70";
     public static final String FOR_GAMMEL_75_MSG = "pselv.sks001.statisk_tekst.forgammel75";
     public static final String IKKE_SOKE_PGA_SOKNAD_UFORE_INNE_MSG = "pselv.sks001.avviksmelding.ikkesokepgasoknaduforeinne";

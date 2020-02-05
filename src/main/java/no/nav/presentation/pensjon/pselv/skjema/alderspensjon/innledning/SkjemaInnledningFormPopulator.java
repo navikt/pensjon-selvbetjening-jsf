@@ -1,5 +1,7 @@
 package no.nav.presentation.pensjon.pselv.skjema.alderspensjon.innledning;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -8,7 +10,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -27,6 +31,7 @@ import no.nav.domain.pensjon.kjerne.sak.Uttaksgrad;
 import no.nav.domain.pensjon.kjerne.skjema.SkjemaInnledning;
 import no.nav.presentation.pensjon.pselv.common.PensjonsKalkulatorConstants;
 import no.nav.presentation.pensjon.pselv.common.PselvConstants;
+import no.nav.presentation.pensjon.pselv.common.PselvUtil;
 import no.nav.presentation.pensjon.pselv.common.utils.AdresseUtil;
 import no.nav.presentation.pensjon.pselv.common.utils.PersonUtil;
 import no.nav.presentation.pensjon.pselv.skjema.SkjemaCommonConstants;
@@ -35,12 +40,15 @@ import no.nav.presentation.pensjon.pselv.skjema.alderspensjon.innledning.support
 
 public class SkjemaInnledningFormPopulator {
 
+    private static final String URL_ENCODING = "UTF-8";
+    private static final String PERSONOPPLYSNINGER_URL_KEY = "cfg.pselv.personopplysninger.url";
+    private static final String IS_SELVBETJENINGSSONE_KEY = "cfg.pselv.security.isSelvbetjeningsSone";
     private CodesTableManager codesTableManager;
+    private MessageSource pselvConfigSource;
     private MessageSource messageSource;
 
-    /**
-     * Determines if an error message should be visible in view, and sets the correct message shown to the user.
-     */
+    private MessageSource pselvPropertyMessageSource;
+
     public void setErrorMessageUserCantApply(SkjemaInnledningForm form) {
         String errorMessageUserCantApply = null;
 
@@ -52,8 +60,7 @@ public class SkjemaInnledningFormPopulator {
         // This message is only shown if and only if no other message is shown
         if (errorMessageUserCantApply == null && !new AdresseUtil().hasRegisteredAdresse(form.getBruker())) {
             // user can only send in an application (alderspensjon or forsorgertillegg ) if he/she is registrated with an adress
-            errorMessageUserCantApply = getMsgWithLink(SkjemaInnledningConstants.MANGLER_ADRESSE_MSG,
-                    SkjemaInnledningConstants.TRS009_ADRESSER_FLOW);
+            errorMessageUserCantApply = getMessageWhenAdresseMangler();
         }
 
         form.setErrorMessageUserCantApply(errorMessageUserCantApply);
@@ -64,11 +71,11 @@ public class SkjemaInnledningFormPopulator {
         List<SelectItem> pensjoneringsgradDropDownList = createPensjoneringsgradDropdown(form);
         form.setPensjoneringsgradListe(pensjoneringsgradDropDownList);
 
-        if (skjemaData != null) {
+        if (skjemaData == null) {
+            populateFormWithInformationFromSkjema(form);
+        } else {
             populateFormWithInformationFromPensjonskalkulator(form, skjemaData);
             form.setSkjemaData(skjemaData);
-        } else {
-            populateFormWithInformationFromSkjema(form);
         }
 
         setInfoMessageUserHasYtelse(form);
@@ -119,17 +126,15 @@ public class SkjemaInnledningFormPopulator {
         if (form.isAldersPensjonSoknad()) {
             innledendeText = findInnledendeTextAlderspensjonSoknad(form);
         } else if (form.isForsorgningstilleggSoknad()) {
-            innledendeText = getMsg(SkjemaInnledningConstants.INNLEDNING_TEXT_FORSORGERTILLEGG, new String[]{Integer.toString(PselvConstants.SPERREFRIST)});
+            String sperrefrist = Integer.toString(PselvUtil.fetchSperreVedtakFremITid());
+            innledendeText = getMsg(SkjemaInnledningConstants.INNLEDNING_TEXT_FORSORGERTILLEGG, new String[]{sperrefrist});
         }
 
         form.setInnledendeText(innledendeText);
     }
 
-    /**
-     * Populate shown innledende text when application type is Alderspensjon. This text is dependent on when user is born.
-     */
     private String findInnledendeTextAlderspensjonSoknad(SkjemaInnledningForm form) {
-        String sperrefrist = Integer.toString(PselvConstants.SPERREFRIST);
+        String sperrefrist = Integer.toString(PselvUtil.fetchSperreVedtakFremITid());
 
         if (form.isBornBefore1943()) {
             return getMsg(SkjemaInnledningConstants.INNLEDNING_TEXT_ALDERSPENSJON_BORN_BEFORE_1943, new String[]{sperrefrist});
@@ -154,58 +159,41 @@ public class SkjemaInnledningFormPopulator {
         if (form.isReceivingAP()) {
             return getMsg(SkjemaInnledningConstants.IKKE_SOKE_PGA_LIKT_KRAV_MSG);
         }
-
         if (form.isSoknadInne()) {
             return getMsg(SkjemaInnledningConstants.IKKE_SOKE_PGA_SOKNAD_INNE_MSG);
         }
-
         if (isForTidligSokAlderspensjon(form)) {
-            return getMsg(SkjemaInnledningConstants.FOR_TIDLIG_SOK_ALDER_MSG,
-                    new String[]{Integer.toString(PselvConstants.SPERREFRIST)});
+            String sperrefrist = Integer.toString(PselvUtil.fetchSperreVedtakFremITid());
+            return getMsg(SkjemaInnledningConstants.FOR_TIDLIG_SOK_ALDER_MSG, new String[]{sperrefrist});
         }
-
         if (isUserTooOldDagensRegelverk(form)) {
-            return getMsgWithLink(SkjemaInnledningConstants.FOR_GAMMEL_70_MSG,
-                    SkjemaCommonConstants.PUS012_SKJEMAOVERSIKT_FLOW);
+            return getMsgWithLink(SkjemaInnledningConstants.FOR_GAMMEL_70_MSG, SkjemaCommonConstants.PUS012_SKJEMAOVERSIKT_FLOW);
         }
-
         if (isUserTooOldApplyFleksibelRegelverk(form)) {
-            return getMsgWithLink(SkjemaInnledningConstants.FOR_GAMMEL_75_MSG,
-                    SkjemaCommonConstants.PUS012_SKJEMAOVERSIKT_FLOW);
+            return getMsgWithLink(SkjemaInnledningConstants.FOR_GAMMEL_75_MSG, SkjemaCommonConstants.PUS012_SKJEMAOVERSIKT_FLOW);
         }
-
         if (form.isUforepensjonTilBehandling()) {
             return getMsg(SkjemaInnledningConstants.IKKE_SOKE_PGA_SOKNAD_UFORE_INNE_MSG);
         }
-
         if (form.isIkkeSokePgaUforeOver80(form.getBruker().getPid())) {
             return getMsg(SkjemaInnledningConstants.IKKE_SOKE_PGA_UFORE_OVER_80_MSG);
         }
-
         if (form.isUserHasUforeVedtakFremITid()) {
             return getMsg(SkjemaInnledningConstants.IKKE_SOKE_PGA_UFORE_FREM_I_TID_MSG);
         }
-
         if (form.isUserHasManglendeEpsInformasjon()) {
-            return getMsgWithLink(SkjemaInnledningConstants.IKKE_SOKE_PGA_MANGLENDE_EPS_OPPLYSNINGER,
-                    SkjemaCommonConstants.PUS012_SKJEMAOVERSIKT_FLOW);
+            return getMsgWithLink(SkjemaInnledningConstants.IKKE_SOKE_PGA_MANGLENDE_EPS_OPPLYSNINGER, SkjemaCommonConstants.PUS012_SKJEMAOVERSIKT_FLOW);
         }
-
         return null;
     }
 
-    /**
-     * A user must have a lopende alderspensjonsak or til behandling.
-     */
     private String getMessageUserCannotApplyForsorgingstillegg(SkjemaInnledningForm form) {
         if (!form.userHasAlreadyAppliedAlderspensjon()) {
             return getMsg(SkjemaInnledningConstants.IKKE_HOVEDYTELSE_MSG);
         }
-
         if (form.isUserHasAlderspensjonNyttRegelverk() && isNotAllowedToSokeOmForsorgerTilleggNyttRegelverk(form)) {
             return getMsg(SkjemaInnledningConstants.IKKE_FORSORGINGSTILLEGG_MSG);
         }
-
         return null;
     }
 
@@ -219,7 +207,7 @@ public class SkjemaInnledningFormPopulator {
     }
 
     /**
-     * If a user is born before 1943 (dagens regelverk) , a user can only apply for alderspensjon before the age of 70.
+     * If a user is born before 1943 (dagens regelverk), a user can only apply for alderspensjon before the age of 70.
      */
     private boolean isUserTooOldDagensRegelverk(SkjemaInnledningForm form) {
         Date fodselsdato = form.getBruker().getPid().getFodselsdato();
@@ -234,11 +222,8 @@ public class SkjemaInnledningFormPopulator {
         return (form.isBornBetweenJanNov1943() || form.isBornFomDec1943()) && isUser75(fodselsdato);
     }
 
-    /**
-     * Determines if an information message should be visible in view, and sets the correct message.
-     */
     private void setInfoMessageUserHasYtelse(SkjemaInnledningForm form) {
-        String infoMessageUserHasYtelse = getInfoMessageUserHasYtelse(form);
+        String infoMessageUserHasYtelse = getInfoMessage(form);
 
         if (infoMessageUserHasYtelse == null) {
             return;
@@ -247,25 +232,19 @@ public class SkjemaInnledningFormPopulator {
         form.setInfoUserHasOtherYtelse(getMsgWithLink(infoMessageUserHasYtelse, SkjemaInnledningConstants.TRS003_NYHENVENDELSE_FLOW));
     }
 
-    private static String getInfoMessageUserHasYtelse(SkjemaInnledningForm form) {
+    private static String getInfoMessage(SkjemaInnledningForm form) {
         if (form.isLopendeAFP()) {
             return SkjemaInnledningConstants.INFOTEKST_AFP_MSG;
         }
-
         if (form.isLopendeGjenlevende()) {
             return SkjemaInnledningConstants.INFOTEKST_GJP_MSG;
         }
-
         if (form.isLopendeUforepensjon()) {
             return SkjemaInnledningConstants.INFOTEKST_UP_MSG;
         }
-
         return null;
     }
 
-    /**
-     * Populate the valgt pensjoneringstidspunkt nedtrekksliste
-     */
     private void setPensjoneringstidspunkt(SkjemaInnledningForm form, Date iverksettelsesdato) {
         populatePensjoneringstidspunktAlderspensjon(form);
         List<SelectItem> datoer = form.getPensjoneringsArListe();
@@ -297,7 +276,6 @@ public class SkjemaInnledningFormPopulator {
      * returns to finish.
      * <p>
      * If the user enters the application without doing anything special before, the default should be the first available date for pensjoneringstidspunkt.
-     * <p>
      */
     private Date findPensjoneringstidspunkt(List<SelectItem> datoer, Date iverksettelsesdato) {
         Date firstDateInList = getDate((String) datoer.get(0).getValue());
@@ -307,29 +285,17 @@ public class SkjemaInnledningFormPopulator {
             return firstDateInList;
         }
 
-        if (!firstDateInList.after(iverksettelsesdato)) {
-            return iverksettelsesdato;
-        }
-
-        return firstDateInList;
+        return firstDateInList.after(iverksettelsesdato) ? firstDateInList : iverksettelsesdato;
     }
 
-    /**
-     * Retrieves the first time of retirement from the list of retirement times.
-     */
     private Date getDate(String dateString) {
-        SimpleDateFormat format = new SimpleDateFormat(SkjemaInnledningConstants.DATE_FORMAT);
-
         try {
-            return format.parse(dateString);
+            return new SimpleDateFormat(SkjemaInnledningConstants.DATE_FORMAT).parse(dateString);
         } catch (ParseException e) {
             throw new ImplementationUnrecoverableException(e);
         }
     }
 
-    /**
-     * Populates time of retirment when user applies for alderspensjon.
-     */
     private void populatePensjoneringstidspunktAlderspensjon(SkjemaInnledningForm form) {
         if (form.isBornBefore1943()) {
             populatePensjoneringstidspunktAlderspensjonUserBornBefore1943(form);
@@ -351,36 +317,28 @@ public class SkjemaInnledningFormPopulator {
     private void populatePensjoneringstidspunktForsorgingstillegg(SkjemaInnledningForm form) {
         // Set first tidspunkt in list
         Calendar pafolgendeMnd = getFirstDayOfNextMonth();
-        List<SelectItem> aarList = populatePensjonsTidspkt(PselvConstants.SPERREFRIST, pafolgendeMnd);
+        int sperrefrist = fetchSperrefrist();
+        List<SelectItem> aarList = populatePensjonsTidspkt(sperrefrist, pafolgendeMnd);
         form.setPensjoneringsArListe(aarList);
     }
 
-    /**
-     * Populates time of retirment when user applies for alderspensjon and is born before 1943.
-     */
     private void populatePensjoneringstidspunktAlderspensjonUserBornBefore1943(SkjemaInnledningForm form) {
         // populate list with 4 months
-        List<SelectItem> aarList = populatePensjonsTidspkt(PselvConstants.SPERREFRIST, getFirstDayOfNextMonth());
+        int sperrefrist = fetchSperrefrist();
+        List<SelectItem> aarList = populatePensjonsTidspkt(sperrefrist, getFirstDayOfNextMonth());
         form.setPensjoneringsArListe(aarList);
         form.setFylt67Aar(true);
     }
 
-
-    /**
-     * Populate the time of retirement when user applies for alderspensjon and user is born between january and november 1943.
-     */
     private void populatePensjoneringstidspunktAlderspensjonUserBornBetweenJanNov1943(SkjemaInnledningForm form) {
         Date fdato = form.getBruker().getPid().getFodselsdato();
-        // Find first legal AP date
         Calendar firstLegalDate = getFirstLegalAPDate(fdato);
-
-        // Find first day of next month
         Calendar nextMnth = getFirstDayOfNextMonth();
-
         List<SelectItem> aarList;
 
         if (userIs67(fdato)) {
-            aarList = populatePensjonsTidspkt(PselvConstants.SPERREFRIST, nextMnth);
+            int sperrefrist = fetchSperrefrist();
+            aarList = populatePensjonsTidspkt(sperrefrist, nextMnth);
             form.setFylt67Aar(true);
         } else {
             aarList = populatePensjonsTidspkt(getMonthsBetweenDates(nextMnth, firstLegalDate), firstLegalDate);
@@ -405,6 +363,7 @@ public class SkjemaInnledningFormPopulator {
         Calendar today = Calendar.getInstance();
         Calendar firstDateNewRules = Calendar.getInstance();
         firstDateNewRules.setTime(PselvConstants.DATO_NYTT_REGELVERK);
+        final int sperrefrist = fetchSperrefrist();
         List<SelectItem> aarList;
 
         if (!userIs62(fdato)) {
@@ -413,10 +372,10 @@ public class SkjemaInnledningFormPopulator {
             aarList = populatePensjonsTidspkt(getMonthsBetweenDates(nextMnth, firstDateNewRules), firstDateNewRules);
         } else {
             int monthsUntil67M = DateUtil.getMonthBetween(today.getTime(), calculateFirstDayInMonthAfterPersonTurns67(fdato));
-            if (form.getHasLopendeUforeGjenlevOrFamplAt67M() && monthsUntil67M <= PselvConstants.SPERREFRIST) {
+            if (form.getHasLopendeUforeGjenlevOrFamplAt67M() && monthsUntil67M <= sperrefrist) {
                 aarList = populatePensjonsTidspkt(monthsUntil67M, nextMnth);
             } else {
-                aarList = populatePensjonsTidspkt(PselvConstants.SPERREFRIST, nextMnth);
+                aarList = populatePensjonsTidspkt(sperrefrist, nextMnth);
             }
         }
 
@@ -427,12 +386,14 @@ public class SkjemaInnledningFormPopulator {
     private Date calculateFirstDayInMonthAfterPersonTurns67(Date dateOfBirth) {
         Date dateOf67m = DateUtil.getRelativeDateByYear(dateOfBirth, 67);
         dateOf67m = DateUtil.getRelativeDateByMonth(dateOf67m, 1);
-        return DateUtil.getFirstDayOfMonth(dateOf67m);
+        dateOf67m = DateUtil.getFirstDayOfMonth(dateOf67m);
+        return dateOf67m;
     }
 
     private int getMonthsBetweenDates(Calendar one, Calendar two) {
         int monthsBeforeBirthdayAP = DateUtil.getMonthBetween(one.getTime(), two.getTime());
-        return PselvConstants.SPERREFRIST - monthsBeforeBirthdayAP;
+        int sperrefrist = fetchSperrefrist();
+        return sperrefrist - monthsBeforeBirthdayAP;
     }
 
     /**
@@ -466,9 +427,6 @@ public class SkjemaInnledningFormPopulator {
         return calendar;
     }
 
-    /**
-     * Find the first day of the next month by using the Stelvio DateUtil
-     */
     private Calendar getFirstDayOfNextMonth() {
         Date date = DateUtil.getFirstDayOfMonth(now());
         date = DateUtil.getRelativeDateByMonth(date, 1);
@@ -477,9 +435,6 @@ public class SkjemaInnledningFormPopulator {
         return calendar;
     }
 
-    /**
-     * Makes testing with different "today" dates possible (waiting for JSR-310).
-     */
     protected Date now() {
         return new Date();
     }
@@ -498,12 +453,10 @@ public class SkjemaInnledningFormPopulator {
         return aarList;
     }
 
-    /**
-     * Decide if user is too young to apply for Alderspensjon or not.
-     */
     private boolean isUserTooYoung(Date fdato) {
         Calendar foersteMuligeVirkFOM = getFoersteMuligeVirkFOM(fdato);
-        Date fourMonthsFromToday = DateUtil.getRelativeDateByMonth(new Date(), PselvConstants.SPERREFRIST);
+        int sperrefrist = fetchSperrefrist();
+        Date fourMonthsFromToday = DateUtil.getRelativeDateByMonth(new Date(), sperrefrist);
         return DateUtil.isBeforeByDay(fourMonthsFromToday, foersteMuligeVirkFOM.getTime(), false);
     }
 
@@ -537,8 +490,9 @@ public class SkjemaInnledningFormPopulator {
     }
 
     public boolean isUserBetween62And67(Person person) {
+        PersonUtil personUtil = new PersonUtil();
         Calendar now = Calendar.getInstance();
-        int age = new PersonUtil().calculateAge(person.getPid().getFodselsdato(), now.getTime());
+        int age = personUtil.calculateAge(person.getPid().getFodselsdato(), now.getTime());
 
         return age >= PensjonsKalkulatorConstants.AFP_PENSJONSALDER_START
                 && age <= PensjonsKalkulatorConstants.AFP_PENSJONSALDER_SLUTT;
@@ -565,7 +519,8 @@ public class SkjemaInnledningFormPopulator {
 
     private List<SelectItem> createPensjoneringsgradDropdown(SkjemaInnledningForm form) {
         SelectItem item;
-        CodesTablePeriodic<UttaksgradCti, UttaksgradCode, String> ctp = codesTableManager.getCodesTablePeriodic(UttaksgradCti.class);
+        CodesTablePeriodic<UttaksgradCti, UttaksgradCode, String> ctp = codesTableManager
+                .getCodesTablePeriodic(UttaksgradCti.class);
         List<SelectItem> uttaksgradList = new ArrayList<>();
 
         if (form.getUforeGrad() != null && form.getUforeGrad() <= 80 && !form.canChooseAgeOver67And1Month(form.getBruker().getPid())) {
@@ -604,10 +559,7 @@ public class SkjemaInnledningFormPopulator {
         Integer uttaksgrad = form.getUttaksgradExistingAlderpsensjonSak();
         Date fdato = form.getBruker().getPid().getFodselsdato();
         Date userIs67 = getFirstLegalAPDate(fdato).getTime();
-
-        notAllowedToSokeForsorgerTillegg = !(uttaksgrad != null && uttaksgrad == 100
-                && (iverksettelsesDate.equals(userIs67) || iverksettelsesDate.after(userIs67)));
-
+        notAllowedToSokeForsorgerTillegg = !(uttaksgrad != null && uttaksgrad == 100 && (iverksettelsesDate.equals(userIs67) || iverksettelsesDate.after(userIs67)));
         return notAllowedToSokeForsorgerTillegg;
     }
 
@@ -637,12 +589,12 @@ public class SkjemaInnledningFormPopulator {
 
         if (form.isAldersPensjonSoknad()) {
             boolean tidspunktIsJan2011 = tidspunkt != null && tidspunkt.equals(januar2011);
-            if (form.isBornBefore1943() || form.isBornBetweenJanNov1943() && !tidspunktIsJan2011) {
+            if (form.isBornBefore1943() || (form.isBornBetweenJanNov1943() && !tidspunktIsJan2011)) {
                 typedKeyInformation.append(getMsg(SkjemaInnledningConstants.PENSJON_DAGENS_REGELVERK,
                         new String[]{tidspunkt}));
             }
 
-            if (form.isBornFomDec1943() || form.isBornBetweenJanNov1943() && tidspunktIsJan2011) {
+            if (form.isBornFomDec1943() || (form.isBornBetweenJanNov1943() && tidspunktIsJan2011)) {
                 typedKeyInformation.append(getMsg(SkjemaInnledningConstants.PENSJON, new String[]{grad, tidspunkt}));
             }
         }
@@ -658,9 +610,22 @@ public class SkjemaInnledningFormPopulator {
         return "" + percent + " %";
     }
 
+    private int fetchSperrefrist() {
+        return PselvUtil.fetchSperreVedtakFremITid();
+    }
+
     private String getMsgWithLink(String key, String link) {
         String contextPath = getContextPath();
         String param = contextPath + link;
+        return getMsg(key, new String[]{param});
+    }
+
+    private String getMessage(String key, String param) {
+        return getMsg(key, new String[]{param});
+    }
+
+    private String getMsgWithLinkFromMessageSource(String key, String link) {
+        String param = pselvPropertyMessageSource.getMessage(link, new String[]{}, getLocale());
         return getMsg(key, new String[]{param});
     }
 
@@ -678,11 +643,16 @@ public class SkjemaInnledningFormPopulator {
         return messageSource.getMessage(key, new String[]{}, getLocale());
     }
 
-    /**
-     * Returns the context-path from the RequestContextHolder. Can be overridden in unit tests.
-     *
-     * @return the requests context path
-     */
+    private String getConfigValue(String key) {
+        return pselvConfigSource.getMessage(key, null, LocaleContextHolder.getLocale());
+    }
+
+    private String getMessageWhenAdresseMangler() {
+        String manglerAdresseMessage = getMsg(SkjemaInnledningConstants.MANGLER_ADRESSE_MSG);
+        boolean isSelvbetjeningssone = "true".equalsIgnoreCase(getConfigValue(IS_SELVBETJENINGSSONE_KEY));
+        return manglerAdresseMessage + (isSelvbetjeningssone ? " " + getMessage(SkjemaInnledningConstants.REGISTRER_ADRESSE_MSG, getPersonopplysningerUrl()) : "");
+    }
+
     String getContextPath() {
         return RequestContextHolder.getRequestContext().getExternalContext().getContextPath();
     }
@@ -697,5 +667,28 @@ public class SkjemaInnledningFormPopulator {
 
     public void setMessageSource(MessageSource messageSource) {
         this.messageSource = messageSource;
+    }
+
+    public void setPselvConfigSource(MessageSource source) {
+        pselvConfigSource = source;
+    }
+
+    private String getPersonopplysningerUrl() {
+        return getConfigValue(PERSONOPPLYSNINGER_URL_KEY) + "/skjema/innledning/" + getEncodedCurrentUrl();
+    }
+
+    private String getEncodedCurrentUrl() {
+        HttpServletRequest request = getCurrentHttpServletRequest();
+        String url = String.format("%s?%s", request.getRequestURL(), request.getQueryString());
+
+        try {
+            return URLEncoder.encode(url, URL_ENCODING);
+        } catch (UnsupportedEncodingException e) {
+            return url;
+        }
+    }
+
+    protected HttpServletRequest getCurrentHttpServletRequest() {
+        return (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
     }
 }

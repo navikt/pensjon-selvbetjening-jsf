@@ -9,6 +9,7 @@ import java.util.List;
 import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.model.SelectItem;
 
+import no.stelvio.presentation.binding.context.MessageContextUtil;
 import org.apache.commons.lang.time.DateUtils;
 
 import no.stelvio.common.util.DateUtil;
@@ -85,8 +86,7 @@ public class SkjemaInnledningForm extends SkjemaAlderspensjonCommonForm {
 
     private String innledendeText;
     private SimpleDateFormat sdf = new SimpleDateFormat(SkjemaInnledningConstants.DATE_FORMAT);
-
-    // Helper methods
+    private int sperrefrist;
 
     /**
      * Check if user has aldready applied for alderspensjon. This is the case if user has a alderspensjon sak with status
@@ -112,11 +112,9 @@ public class SkjemaInnledningForm extends SkjemaAlderspensjonCommonForm {
      * Check if user can choose a date which is over the users age of 67 + one month
      */
     public boolean canChooseAgeOver67And1Month(Pid pid) {
-        Date fodselsDato = pid.getFodselsdato();
-        Date dateWhenUserIs67And1Month = DateUtils.addYears(fodselsDato, 67);
-        dateWhenUserIs67And1Month = DateUtils.addMonths(dateWhenUserIs67And1Month, 1);
-        Date latestPossibleDate = DateUtils.addMonths(new Date(), PselvConstants.SPERREFRIST);
-        return latestPossibleDate.after(dateWhenUserIs67And1Month);
+        Date dateWhenUserIs67And1Month = DateUtils.addMonths(DateUtils.addYears(pid.getFodselsdato(), 67), 1);
+        Date latestPossibleDate = DateUtils.addMonths(new Date(), sperrefrist);
+        return DateUtil.isAfterByDay(latestPossibleDate, DateUtil.getFirstDayOfMonth(dateWhenUserIs67And1Month), true);
     }
 
     /**
@@ -223,12 +221,8 @@ public class SkjemaInnledningForm extends SkjemaAlderspensjonCommonForm {
             throw new ImplementationUnrecoverableException(e);
         }
 
-        if (!isBornFomDec1943() &&
-                (isBornBefore1943() || DateUtil.isBeforeDay(valgtAar.getTime(), PselvConstants.DATO_NYTT_REGELVERK))) {
-            visPensjoneringsGradBoks = false;
-        } else {
-            visPensjoneringsGradBoks = true;
-        }
+        visPensjoneringsGradBoks = isBornFomDec1943() ||
+                (!isBornBefore1943() && !DateUtil.isBeforeDay(valgtAar.getTime(), PselvConstants.DATO_NYTT_REGELVERK));
     }
 
     public boolean isLopendeAFP() {
@@ -425,5 +419,16 @@ public class SkjemaInnledningForm extends SkjemaAlderspensjonCommonForm {
 
     public void setUserHasManglendeEpsInformasjon(boolean userHasManglendeEpsInformasjon) {
         this.userHasManglendeEpsInformasjon = userHasManglendeEpsInformasjon;
+    }
+
+    /**
+     * The sperrefrist. 4 months in production, possibly more in test.
+     */
+    public void setSperrefrist(int sperrefrist) {
+        this.sperrefrist = sperrefrist;
+    }
+
+    public int getSperrefrist() {
+        return sperrefrist;
     }
 }
