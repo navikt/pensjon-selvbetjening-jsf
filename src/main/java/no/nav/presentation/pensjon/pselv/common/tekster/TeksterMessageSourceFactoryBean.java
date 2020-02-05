@@ -5,8 +5,6 @@ import org.springframework.context.MessageSource;
 
 /**
  * Spring factory bean used to instantiate a {@link TeksterMessageSource}.
- *
- * @see TeksterMessageSource
  */
 public class TeksterMessageSourceFactoryBean implements FactoryBean<MessageSource> {
 
@@ -15,32 +13,21 @@ public class TeksterMessageSourceFactoryBean implements FactoryBean<MessageSourc
     private int cacheRefresh;
     private String helpPageBaseUrl;
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public MessageSource getObject() throws Exception {
-        final TeksterMessageSource messageSource = new TeksterMessageSource();
-
-        messageSource.setBasenames(this.basenames);
-        messageSource.setUseCodeAsDefaultMessage(this.useCodeAsDefaultMessage);
-        messageSource.setCacheSeconds(this.cacheRefresh);
-        messageSource.setHelpurlPath(this.helpPageBaseUrl);
-
-        return messageSource;
+    public MessageSource getObject() {
+        final TeksterMessageSource source = new TeksterMessageSource();
+        source.setBasenames(basenames);
+        source.setUseCodeAsDefaultMessage(useCodeAsDefaultMessage);
+        source.setCacheSeconds(cacheRefresh);
+        source.setHelpurlPath(helpPageBaseUrl);
+        return source;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Class<?> getObjectType() {
         return TeksterMessageSource.class;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean isSingleton() {
         return false;
@@ -61,5 +48,4 @@ public class TeksterMessageSourceFactoryBean implements FactoryBean<MessageSourc
     public void setHelpPageBaseUrl(String helpPageBaseUrl) {
         this.helpPageBaseUrl = helpPageBaseUrl;
     }
-
 }

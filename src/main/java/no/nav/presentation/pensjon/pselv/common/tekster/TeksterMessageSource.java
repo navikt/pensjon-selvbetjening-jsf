@@ -9,7 +9,6 @@ import no.nav.presentation.pensjon.common.taglib.help.HelpUtils;
 
 /**
  * TeksterMessageSource - Resolves incoming MessageSource code with value from Help URL Path.
- *
  */
 public class TeksterMessageSource extends ReloadableResourceBundleMessageSource {
 
@@ -23,30 +22,23 @@ public class TeksterMessageSource extends ReloadableResourceBundleMessageSource 
      * <li>ReloadableResourceBundleMessageSource (super)</li>
      * <li>Help URL</li>
      * </ol>
-     *
-     * @param code code
-     * @param locale locale
-     * @return first result from the list above
      */
     @Override
     protected MessageFormat resolveCode(String code, Locale locale) {
         String result = resolveSystemPropertyOrEnvironmentVariable(code);
 
-        if (result == null) {
-            MessageFormat messageFormat = super.resolveCode(code, locale);
+        if (result != null) {
+            return new MessageFormat(result, locale);
+        }
 
-            if (messageFormat == null) {
-                String msg = findHelpURLPath(code);
+        MessageFormat messageFormat = super.resolveCode(code, locale);
 
-                if (msg != null) {
-                    messageFormat = new MessageFormat(msg, locale);
-                }
-            }
-
+        if (messageFormat != null) {
             return messageFormat;
         }
 
-        return new MessageFormat(result, locale);
+        String message = findHelpURLPath(code);
+        return message == null ? null : new MessageFormat(message, locale);
     }
 
     /**
@@ -57,10 +49,6 @@ public class TeksterMessageSource extends ReloadableResourceBundleMessageSource 
      * <li>ReloadableResourceBundleMessageSource (super)</li>
      * <li>Help URL</li>
      * </ol>
-     *
-     * @param code code
-     * @param locale locale
-     * @return first result from the list above
      */
     @Override
     protected String resolveCodeWithoutArguments(String code, Locale locale) {
@@ -70,25 +58,15 @@ public class TeksterMessageSource extends ReloadableResourceBundleMessageSource 
             result = super.resolveCodeWithoutArguments(code, locale);
         }
 
-        if (result == null) {
-            result = findHelpURLPath(code);
-        }
-
-        return result;
+        return result == null ? findHelpURLPath(code) : result;
     }
 
     /**
-     * Looks through system properties then enviroment variables for the given key
-     *
-     * @param key key
-     * @return system property or system environment variable. Will return null if not found.
+     * Looks through system properties then environment variables for the given key.
      */
     private String resolveSystemPropertyOrEnvironmentVariable(String key) {
-        String msg = getSystemProperty(key);
-        if (msg == null) {
-            msg = getEnvironmentProperty(key);
-        }
-        return msg;
+        String message = getSystemProperty(key);
+        return message == null ? getEnvironmentProperty(key) : message;
     }
 
     String getSystemProperty(final String key) {
