@@ -1,15 +1,13 @@
 package no.nav.pensjon.selv.service.fake;
 
 import no.nav.domain.pensjon.kjerne.Applikasjonsparameter;
+import no.nav.domain.pensjon.kjerne.exception.PEN029PersonIkkeFunnetLokaltException;
+import no.nav.domain.pensjon.kjerne.exception.PEN031SakManglerEierenhetException;
 import no.nav.domain.pensjon.kjerne.kodetabeller.SakStatusCti;
 import no.nav.domain.pensjon.kjerne.kodetabeller.SakTypeCti;
 import no.nav.domain.pensjon.kjerne.krav.KravHode;
 import no.nav.domain.pensjon.kjerne.sak.Sak;
-import no.nav.service.pensjon.sak.SakServiceBi;
-import no.nav.service.pensjon.sak.HentApplikasjonsparameterRequest;
-import no.nav.service.pensjon.sak.HentApplikasjonsparameterResponse;
-import no.nav.service.pensjon.sak.HentSakListeRequest;
-import no.nav.service.pensjon.sak.HentSakListeResponse;
+import no.nav.service.pensjon.sak.*;
 import no.stelvio.domain.time.ChangeStamp;
 
 import java.util.ArrayList;
@@ -31,6 +29,11 @@ public class FakeSakService implements SakServiceBi {
         HentApplikasjonsparameterResponse response = new HentApplikasjonsparameterResponse();
         response.setApplikasjonsparameter(new Applikasjonsparameter());
         return response;
+    }
+
+    @Override
+    public HentSakSammendragListeResponse hentSakSammendragListe(HentSakSammendragListeRequest request) throws PEN029PersonIkkeFunnetLokaltException, PEN031SakManglerEierenhetException {
+        return new HentSakSammendragListeResponse(new ArrayList<>());
     }
 
     static Sak newSak() {

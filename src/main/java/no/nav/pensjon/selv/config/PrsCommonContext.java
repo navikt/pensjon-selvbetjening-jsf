@@ -43,6 +43,9 @@ public class PrsCommonContext {
     @Autowired
     LogoutService logoutService;
 
+    @Autowired
+    PENonicContentRetriever contentRetriever;
+
 //    @Autowired
 //    EhCacheManagerFactoryBean ehCacheManagerFactoryBean;
 
@@ -51,7 +54,7 @@ public class PrsCommonContext {
         DecoratorFilterFactory factory = new DecoratorFilterFactory();
         factory.setApplicationName("PSELV"); // TODO ${appres.cms.uniqueAppName}
         factory.setFragmentsUrl("common-html/v4/navno"); // ${appres.cms.fragmentsUrl}
-        factory.setContentRetriever(newContentRetriever());
+        factory.setContentRetriever(contentRetriever);
         return factory;
     }
 
@@ -139,13 +142,13 @@ public class PrsCommonContext {
     public Boolean selvbetjeningssone() {
         return Boolean.FALSE;
     }
-
-    private PENonicContentRetriever newContentRetriever() {
-        PENonicContentRetriever retriever = new PENonicContentRetriever(10000); //TODO ${appres.cms.httpTimeoutMillis}
-        retriever.setBaseUrl("https://appres-t4.nav.no/"); // ${appres.cms.url}
-//        retriever.setCacheManager(ehCacheManagerFactoryBean);
-        retriever.setCacheManager(CacheManager.create()); //TODO cns.pselv.ehcacheManager (ehCacheManagerFactoryBean)
+//
+//    private PENonicContentRetriever newContentRetriever() {
+//        PENonicContentRetriever retriever = new PENonicContentRetriever(10000); //TODO ${appres.cms.httpTimeoutMillis}
+//        retriever.setBaseUrl("https://appres-t4.nav.no/"); // ${appres.cms.url}
+////        retriever.setCacheManager(ehCacheManagerFactoryBean);
+////        retriever.setCacheManager(CacheManager.create()); //TODO cns.pselv.ehcacheManager (ehCacheManagerFactoryBean)
 //        retriever.setRefreshIntervalSeconds(60000); // ${appres.cms.refreshIntervalSeconds}
-        return retriever;
-    }
+//        return retriever;
+//    }
 }

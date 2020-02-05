@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:t="http://myfaces.apache.org/tomahawk"
+      xmlns:m="http://nav.pselv.no/modig">
+
+<ui:composition template="/templates/special/step-navigation-framework.xhtml">
+
+    <ui:define name="rightColumn">
+    </ui:define>
+
+    <ui:define name="step-body">
+
+        <h2 class="kalkulator-underoverskrift">
+            <h:outputText value="#{messageSource[flowScope.stepHolder.currentStep.title]}"/>
+        </h2>
+
+        <m:infoboks rendered="#{form.meldingExist}">
+            <m:outputText escape="false" value="${form.melding}"/>
+        </m:infoboks>
+
+        <h:panelGroup layout="block" style="margin-left:8px;margin-right:8px;" rendered="#{form.brukerKanSoke}">
+            <p class="preface">
+                <m:outputText value="#{messageSource['pselv.sks016.statisk_tekst.infoendrealderspensjon']}"/>
+
+                <span class="preface-veiledning-first">
+                        <m:hjelpetekst key="pselv.sks001.helppopup.infoutfyllingskjema"
+                                       linkText="#{messageSource['pselv.sks001.lenketekst.utfyllingskjema']}"/>
+                </span>
+
+                <h:outputLink value="#{messageSource['pselv.url.lenketekst.personvern']}" target="_blank">
+                    <h:outputText value="#{messageSource['pselv.standardtekst.lenketekst.personvern']}"/>
+                </h:outputLink>
+            </p>
+
+            <div class="box inner gray-with-border">
+                <p>
+                    <h:outputText escape="false" value="#{form.statusMelding}"/>
+
+                    <h:panelGroup rendered="#{form.ytelseFramITid != null}">
+                        <h:outputText escape="false" value="#{form.ytelseFramITid}"/>
+                    </h:panelGroup>
+                </p>
+
+                <h3>
+                    <h:outputText escape="false"
+                                  value="#{messageSource['pselv.sks016.statisk_tekst.overskriftendrealder']}"/>
+                    <m:outputText
+                            value="#{messageSource['pselv.standardtekst.statisk_tekst.obligatorisk_stjerne']}"
+                            escape="false" styleClass="asterisk"/>
+                </h3>
+
+                <t:selectOneRadio id="endreUttaksgradOgInkluderOpptjeningRadio"
+                                  value="#{form.handlingsValg}" layout="spread">
+                    <f:selectItem id="endreUttaksgrad"
+                                  itemLabel="#{messageSource['pselv.sks016.ledetekst.endreuttaksgrad']}"
+                                  itemValue="#{form.inkluderOpptjeningOgEndreUttakValue}"/>
+                    <f:selectItem id="inkluderOpptjening"
+                                  itemLabel="#{messageSource['pselv.sks016.ledetekst.inkludernyopptjening']}"
+                                  itemValue="#{form.inkluderOpptjeningValue}"/>
+                </t:selectOneRadio>
+
+                <h:panelGroup layout="block" rendered="#{form.visInkluderNyOpptjening}">
+                    <div>
+                        <t:radio for="endreUttaksgradOgInkluderOpptjeningRadio" id="endreUttaksgradRadio" index="0"/>
+                        <m:hjelpetekst message="#{form.endreUttaksgradInfoTekst}"
+                                       title="#{pselv.standardtekst.tooltip.utfyllingskjema_title}"/>
+                    </div>
+                    <div class="select-container">
+                        <div class="form-linje#{uttaksgrad1.valid ? '' : ' feil'}">
+                            <h:selectOneMenu id="uttaksgrad" value="#{form.uttaksgrad}"
+                                             rendered="#{form.showUttaksgradDropdown}"
+                                             title="#{messageSource['pselv.sks016.statisk_tekst.velgnyuttaksgrad']}"
+                                             binding="#{uttaksgrad1}">
+                                <f:selectItems value="#{form.uttaksgrader}"/>
+                            </h:selectOneMenu>
+
+                            <m:outputText escape="false" rendered="#{!form.showUttaksgradDropdown}"
+                                          value="#{form.uttaksgrad}%"/>
+                            <h:message for="uttaksgrad" showDetail="false"
+                                       showSummary="true" styleClass="melding"/>
+                        </div>
+
+                        <div class="form-linje#{uttakstidspunkt1.valid ? '' : ' feil'}">
+                            <h:selectOneMenu id="uttakstidspunkt"
+                                             value="#{form.uttakstidspunkt}"
+                                             title="#{messageSource['pselv.sks016.statisk_tekst.velgdato']}"
+                                             binding="#{uttakstidspunkt1}">
+                                <f:selectItems value="#{form.uttakstidspunkter}"/>
+                            </h:selectOneMenu>
+
+                            <h:message for="uttakstidspunkt" showDetail="false"
+                                       showSummary="true" styleClass="melding"/>
+                        </div>
+                    </div>
+
+                    <div>
+                        <t:radio for="endreUttaksgradOgInkluderOpptjeningRadio" id="endreUttakstidspunkt" index="1"/>
+
+                        <m:hjelpetekst message="#{form.inkluderOpptjeningInfoTekst}"
+                                       title="#{pselv.standardtekst.tooltip.utfyllingskjema_title}"/>
+                    </div>
+                </h:panelGroup>
+
+                <h:panelGroup layout="block" rendered="#{!form.visInkluderNyOpptjening}">
+                    <div>
+                        <m:outputText escape="false"
+                                      value="#{messageSource['pselv.sks016.tooltip.velguttaksgrad_title']} "/>
+                        <m:outputText escape="false" rendered="#{!form.showUttaksgradDropdown}"
+                                      value="#{form.uttaksgrad}%"/>
+                        <m:hjelpetekst message="#{form.endreUttaksgradInfoTekst}"
+                                       title="#{pselv.standardtekst.tooltip.utfyllingskjema_title}"/>
+                    </div>
+
+                    <div class="form-linje#{uttaksgrad.valid ? '' : ' feil'}">
+                        <h:selectOneMenu id="uttaksgrad2" value="#{form.uttaksgrad}"
+                                         rendered="#{form.showUttaksgradDropdown}"
+                                         title="#{messageSource['pselv.sks016.statisk_tekst.velgnyuttaksgrad']}"
+                                         binding="#{uttaksgrad}">
+                            <f:selectItems value="#{form.uttaksgrader}"/>
+                        </h:selectOneMenu>
+                        <h:message for="uttaksgrad2" showDetail="false"
+                                   showSummary="true"
+                                   styleClass="melding"/>
+                    </div>
+
+                    <div class="form-linje#{uttakstidspunkt.valid ? '' : ' feil'}">
+                        <h:selectOneMenu id="uttakstidspunkt2"
+                                         value="#{form.uttakstidspunkt}"
+                                         title="#{messageSource['pselv.sks016.statisk_tekst.velgdato']}"
+                                         binding="#{uttakstidspunkt}">
+                            <f:selectItems value="#{form.uttakstidspunkter}"/>
+                        </h:selectOneMenu>
+                        <h:message for="uttakstidspunkt2" showDetail="false"
+                                   showSummary="true"
+                                   styleClass="melding"/>
+                    </div>
+                </h:panelGroup>
+            </div>
+
+            <m:asteriskDescription>
+                <m:outputText
+                        value="#{messageSource['pselv.standardtekst.statisk_tekst.obligatorisk']}"
+                        escape="false"/>
+            </m:asteriskDescription>
+
+            <div class="box inner">
+                <p>
+                    <h:outputFormat
+                            value="#{messageSource['pselv.sks016.statisk_tekst.gatilpensjonskalkulatoren']}"
+                            escape="false">
+                        <f:param value="#{contextBean.contextPath}/simulering.jsf"/>
+                    </h:outputFormat>
+                </p>
+            </div>
+        </h:panelGroup>
+
+        <m:modal id="bekreftelse_opphor"
+                 title=""
+                 action="goToNextStep"
+                 rendered="#{form.showLiteBox}"
+                 open="true"
+                 ok="#{messageSource['pselv.standardtekst.knappetekst.gavidere']}"
+                 cancel="#{messageSource['pselv.standardtekst.knappetekst.gatilbake']}">
+            <h:outputFormat
+                    value="#{messageSource['pselv.sks016.statisk_tekst.informasjonopphoravut']}"
+                    escape="false">
+                <f:param value="#{form.uttaksgrad}"/>
+                <f:param value="#{form.uttakstidspunkt}"/>
+            </h:outputFormat>
+
+            <script>
+                $('#bekreftelse_opphor').modal('show');
+            </script>
+        </m:modal>
+    </ui:define>
+</ui:composition>
+</html>

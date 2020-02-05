@@ -1,8 +1,11 @@
 package no.nav.domain.pensjon.kjerne.beregning;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class Beregning {
+    //TODO complete
     public Date getVirkDatoFom() {
         return new Date();
     }
@@ -21,5 +24,17 @@ public class Beregning {
 
     public int getNetto() {
         return 2;
+    }
+
+    public List<BarnetilleggFellesbarn> getBarnetilleggFellesbarnListe() {
+        return new ArrayList<>();
+    }
+
+    public List<BarnetilleggSerkullsbarn> getBarnetilleggSerkullsbarnListe() {
+        return new ArrayList<>();
+    }
+
+    public List<Ektefelletillegg> getEktefelletilleggListe() {
+        return new ArrayList<>();
     }
 }

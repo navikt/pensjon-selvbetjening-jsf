@@ -13,7 +13,7 @@ public class PrsMessageSourceContext {
         TeksterMessageSourceFactoryBean bean = new TeksterMessageSourceFactoryBean();
         bean.setBasenames(new String[]{"no-nav-pensjon-pen-resources", "cfg-pen-provider-environment", "file:/PATH/resources/tekster-properties"}); // TODO replace PATH
         bean.setUseCodeAsDefaultMessage(true);
-        bean.setCacheRefresh(60);
+        bean.setCacheRefresh(60000);
         bean.setHelpPageBaseUrl("http://help");
         return bean;
     }

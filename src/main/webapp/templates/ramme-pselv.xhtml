@@ -6,13 +6,16 @@
       lang="no"
       class="no-js">
 <h:head>
-    <ui:include src="/WEB-INF/view/common/ramme-header.xhtml"/>
+    <ui:include src="/templates/common/ramme-header.xhtml"/>
 </h:head>
+
 <h:body styleClass="#{bodyClass}">
     <div class="pagewrapper">
         {{fragment.header-withmenu}}
+
         <main id="maincontent" role="main" tabindex="-1">
-            <ui:include src="/WEB-INF/view/common/ramme-brukerinfo-menu.xhtml"/>
+            <ui:include src="/templates/common/ramme-brukerinfo-menu.xhtml"/>
+
             <h:panelGroup styleClass="container maincontent #{containerClass}" layout="block">
                 <div class="row">
                     <h:panelGroup styleClass="col-md-3 menuContainer" rendered="#{not hideLeftMenu}" layout="block">
@@ -22,22 +25,28 @@
                     <div class="#{hideLeftMenu ? 'col-md-12' : 'col-md-9'} #{cssClassContentContainer != null ? cssClassContentContainer : ''} content-container">
                         <ui:insert name="mainWindow">-missing mainWindow-</ui:insert>
 
-                        <h:panelGroup rendered="#{enableRightColumn and (forside and not pselvcore:isWorkingOnBehalfOf())}">
-                            <ui:insert name="rightColumn">-missing rightColumn (or set enableRightColumn=false)-</ui:insert>
+                        <h:panelGroup
+                                rendered="#{enableRightColumn and (forside and not pselvcore:isWorkingOnBehalfOf())}">
+                            <ui:insert
+                                    name="rightColumn">-missing rightColumn (or set enableRightColumn=false)-</ui:insert>
                         </h:panelGroup>
 
                         <h:panelGroup rendered="#{false and enableRightColumn and utbetalinger}">
-                            <ui:insert name="rightColumn">-missing rightColumn (or set enableRightColumn=false)-</ui:insert>
+                            <ui:insert
+                                    name="rightColumn">-missing rightColumn (or set enableRightColumn=false)-</ui:insert>
                         </h:panelGroup>
 
-                        <h:panelGroup rendered="#{false and enableRightColumn and pselvcore:isPersonlig() and not forside and not utbetalinger}">
-                            <ui:insert name="rightColumn">-missing rightColumn (or set enableRightColumn=false)-</ui:insert>
+                        <h:panelGroup
+                                rendered="#{false and enableRightColumn and pselvcore:isPersonlig() and not forside and not utbetalinger}">
+                            <ui:insert
+                                    name="rightColumn">-missing rightColumn (or set enableRightColumn=false)-</ui:insert>
                         </h:panelGroup>
                     </div>
                 </div>
             </h:panelGroup>
         </main>
     </div>
+
     {{fragment.footer-withmenu}}
 </h:body>
 </html>

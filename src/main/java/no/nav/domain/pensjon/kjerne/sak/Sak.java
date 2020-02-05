@@ -1,10 +1,13 @@
 package no.nav.domain.pensjon.kjerne.sak;
 
 import no.nav.domain.AbstractVersionedPersistentDomainObject;
+import no.nav.domain.pensjon.kjerne.PenPerson;
 import no.nav.domain.pensjon.kjerne.kodetabeller.SakStatusCti;
 import no.nav.domain.pensjon.kjerne.kodetabeller.SakTypeCti;
 import no.nav.domain.pensjon.kjerne.krav.KravHode;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 //TODO stub
@@ -36,5 +39,17 @@ public class Sak extends AbstractVersionedPersistentDomainObject {
 
     public Long getSakId() {
         return 123L;
+    }
+
+    public List<Uttaksgrad> getUttaksgradhistorikk() {
+        return new ArrayList<>();
+    }
+
+    public PenPerson getPenPerson() {
+        return new PenPerson();
+    }
+
+    public Date bestemForsteVirkningsdato() {
+        return new Date();
     }
 }

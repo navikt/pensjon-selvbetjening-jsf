@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                          http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <!--    todo hack dep'y-->
+    <bean id="pen.sakService2" class="no.nav.pensjon.selv.service.fake.FakeSakService"/>
+    <bean id="pen.vedtakService2" class="no.nav.pensjon.selv.service.fake.FakeVedtakService"/>
+
+    <bean id="skjemaEndringAction"
+          class="no.nav.presentation.pensjon.pselv.skjema.endringalderspensjon.SkjemaEndringAlderspensjonAction">
+        <property name="skjemaEndringActionDelegate" ref="prs.skjema.skjemaEndringAlderspensjonActionDelegate"/>
+        <property name="skjemaEndringPopulator" ref="prs.skjema.skjemaEndringAlderspensjonPopulator"/>
+        <property name="commonActionDelegate" ref="prs.pselv.commonActionDelegate"/>
+    </bean>
+
+    <bean id="prs.skjema.skjemaEndringAlderspensjonPopulator"
+          class="no.nav.presentation.pensjon.pselv.skjema.endringalderspensjon.SkjemaEndringAlderspensjonPopulator">
+        <property name="messageSource" ref="messageSource"/>
+        <property name="skjemaEndringAlderspensjonActionDelegate"
+                  ref="prs.skjema.skjemaEndringAlderspensjonActionDelegate"/>
+        <property name="relasjonUtil" ref="prs.skjema.relasjonUtil"/>
+        <property name="uttaksgradUtil" ref="prs.skjema.uttaksgradUtil"/>
+    </bean>
+
+    <bean id="prs.skjema.skjemaEndringAlderspensjonActionDelegate"
+          class="no.nav.presentation.pensjon.pselv.skjema.endringalderspensjon.SkjemaEndringAlderspensjonActionDelegate">
+        <property name="sakService" ref="pen.sakService2"/>
+        <property name="vedtakService" ref="pen.vedtakService2"/>
+        <property name="personCommonActionDelegate" ref="prs.pselv.personCommonActionDelegate"/>
+    </bean>
+
+    <bean id="prs.skjema.relasjonUtil" class="no.nav.presentation.pensjon.pselv.common.utils.RelasjonUtil"/>
+
+    <bean id="prs.skjema.uttaksgradUtil" class="no.nav.presentation.pensjon.pselv.common.utils.UttaksgradUtil"/>
+</beans>

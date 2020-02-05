@@ -21,9 +21,11 @@
     </action-state>
 
     <view-state id="viewMode" view="publisering/dinpensjon/dinpensjon">
+        <transition on="goToEndrePensjon" to="viewEndrePensjon" />
     </view-state>
 
     <end-state id="goToLoginservice" view="externalRedirect:${flowScope.loginserviceURL}"/>
+    <end-state id="viewEndrePensjon" view="flowRedirect:skjema/endringalderspensjon" />
 
     <bean-import resource="dinpensjon-context.xml"/>
 </flow>

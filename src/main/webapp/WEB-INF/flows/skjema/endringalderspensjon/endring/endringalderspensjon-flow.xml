@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow" xmlns:ns0="http://www.w3.org/2001/XMLSchema-instance" ns0:schemaLocation="http://www.springframework.org/schema/webflow http://www.springframework.org/schema/webflow/spring-webflow-2.4.xsd" start-state="viewMode">
+    <input name="stepHolder" value="flowScope.stepHolder"/>
+    <input name="skjemaEndringInputData" value="flowScope.skjemaEndringInputData" />
+
+    <on-start>
+        <evaluate expression="endringAlderspensjonAction.setupForm"/>
+    </on-start>
+
+    <view-state id="viewMode" view="skjema/endringalderspensjon/endring/endringalderspensjon">
+        <transition on="openStep" to="redirectChosenStep">
+            <evaluate expression="endringAlderspensjonAction.bindAndValidate"/>
+            <evaluate expression="endringAlderspensjonAction.updateInputData"/>
+            <evaluate expression="endringAlderspensjonAction.setTypedKeyInformation"/>
+            <evaluate expression="endringAlderspensjonAction.setOpenStepIndex"/>
+        </transition>
+        <transition on="openNextStep" to="decideNextStep">
+            <evaluate expression="endringAlderspensjonAction.updateInputData"/>
+            <evaluate expression="endringAlderspensjonAction.bindAndValidate"/>
+        </transition>
+        <transition on="cancel" to="cancel"/>
+        <transition on="goToNextStep" to="redirectNextStep">
+            <evaluate expression="endringAlderspensjonAction.setTypedKeyInformation"/>
+        </transition>
+    </view-state>
+
+    <action-state id="decideNextStep">
+        <evaluate expression="endringAlderspensjonAction.brukerHasChosenDate67MAndHasLopendeUfore" />
+        <transition on="yes" to="viewMode"/>
+        <transition on="no" to="redirectNextStep">
+            <evaluate expression="endringAlderspensjonAction.setTypedKeyInformation"/>
+        </transition>
+    </action-state>
+
+    <end-state id="redirectNextStep">
+        <output name="form" value="flowScope.form"/>
+        <output name="stepHolder" value="flowScope.stepHolder"/>
+        <output name="skjemaEndringInputData" value="flowScope.skjemaEndringInputData" />
+    </end-state>
+
+    <end-state id="redirectChosenStep">
+        <output name="form" value="flowScope.form"/>
+        <output name="stepHolder" value="flowScope.stepHolder"/>
+        <output name="skjemaEndringInputData" value="flowScope.skjemaEndringInputData" />
+    </end-state>
+
+    <end-state id="cancel"/>
+
+    <bean-import resource="endringalderspensjon-context.xml"/>
+</flow>

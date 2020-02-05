@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow" xmlns:ns0="http://www.w3.org/2001/XMLSchema-instance"
+      ns0:schemaLocation="http://www.springframework.org/schema/webflow http://www.springframework.org/schema/webflow/spring-webflow-2.4.xsd"
+      start-state="endring">
+
+    <on-start>
+        <evaluate expression="skjemaEndringAction.init" />
+    </on-start>
+
+    <action-state id="openChosenStep">
+        <evaluate expression="skjemaEndringAction.openChosenStep" />
+        <transition on="success" to="#{flowScope.stepHolder.openStepFlow}" />
+    </action-state>
+
+    <action-state id="openNextStep">
+        <evaluate expression="skjemaEndringAction.openNextStep" />
+        <transition on="success" to="#{flowScope.stepHolder.openStepFlow}" />
+    </action-state>
+
+    <subflow-state id="endring" subflow="skjema/endringalderspensjon/endring">
+        <input name="stepHolder" value="flowScope.stepHolder" />
+        <input name="skjemaEndringInputData" value="flowScope.skjemaEndringInputData" />
+        <output name="skjemaEndringInputData" value="flowScope.skjemaEndringInputData" />
+        <output name="stepHolder" value="flowScope.stepHolder" />
+        <transition on="redirectChosenStep" to="openChosenStep" />
+        <transition on="redirectNextStep" to="openNextStep" />
+        <transition on="cancel" to="cancel" />
+    </subflow-state>
+
+<!--TODO bekreft and kvittering-->
+
+    <end-state id="gaTilDinPensjon" />
+    <end-state id="cancel" view="flowRedirect:dinpensjon"/>
+
+    <bean-import resource="skjema-endring-alderspensjon-context.xml" />
+</flow>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                          http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <!--    todo hack dep'y-->
+    <bean id="pen.sakService1" class="no.nav.pensjon.selv.service.fake.FakeSakService"/>
+    <bean id="pen.vedtakService1" class="no.nav.pensjon.selv.service.fake.FakeVedtakService"/>
+
+    <bean id="endringAlderspensjonAction"
+          class="no.nav.presentation.pensjon.pselv.skjema.endringalderspensjon.endring.EndringAlderspensjonAction">
+        <property name="formObjectName" value="form"/>
+        <property name="formObjectClass"
+                  value="no.nav.presentation.pensjon.pselv.skjema.endringalderspensjon.endring.EndringAlderspensjonForm"/>
+        <property name="formObjectScope" value="FLOW"/>
+        <property name="actionDelegate" ref="prs.pselv.endringAlderspensjonActionDelegate"/>
+        <property name="formPopulator" ref="prs.pselv.endringAlderspensjonFormPopulator"/>
+        <property name="commonActionDelegate" ref="prs.pselv.commonActionDelegate"/>
+        <property name="validator" ref="prs.pselv.endringAlderspensjonFormValidator"/>
+        <property name="messageSource" ref="messageSource"/>
+        <property name="pselvTransferObject" ref="prs.pselv.transferObject"/>
+    </bean>
+
+    <bean id="prs.pselv.endringAlderspensjonActionDelegate"
+          class="no.nav.presentation.pensjon.pselv.skjema.endringalderspensjon.endring.EndringAlderspensjonActionDelegate">
+        <property name="sakService" ref="pen.sakService1"/>
+        <property name="vedtakService" ref="pen.vedtakService1"/>
+        <property name="codesTableManager" ref="pen.codesTableManager"/>
+    </bean>
+
+    <bean id="prs.pselv.endringAlderspensjonFormPopulator"
+          class="no.nav.presentation.pensjon.pselv.skjema.endringalderspensjon.endring.EndringAlderspensjonFormPopulator">
+    </bean>
+
+    <bean id="prs.pselv.endringAlderspensjonFormValidator"
+          class="no.nav.presentation.pensjon.pselv.skjema.endringalderspensjon.endring.EndringAlderspensjonFormValidator">
+    </bean>
+</beans>
